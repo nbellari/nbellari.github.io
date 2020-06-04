@@ -225,7 +225,6 @@ mysh_execute(char **args)
     } else {
         return mysh_launch(args);
     }
-
 }
 
 void
