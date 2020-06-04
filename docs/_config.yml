@@ -1,5 +1,6 @@
 theme: jekyll-theme-hacker
-title: /dev/geek
+name: /dev/geek
+title: null
 description: Ramblings of a geek
 github:
   is_project_page: false
