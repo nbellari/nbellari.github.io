@@ -6,7 +6,9 @@ This is another small coding exercise that I took to understand memory allocator
 
 Here's is what a process address space looks like:
 
+<p align="center">
 <img align="center" src="images/address-space.png" />
+<p/>
 
 A Process' virtual address space begins from the code section. After the code is laid out, the next section contains initialized global and static data. This region stores all the initialized global and static variables. Uninitialized global and static variables follow next with that mapped to zero pages (as they must be initialized to zero). As soon as the process begins to write to those variables, new zero pages are allocated to the process (lazy allocation). 
 
