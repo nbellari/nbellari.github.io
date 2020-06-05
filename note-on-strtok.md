@@ -7,3 +7,7 @@ This set of calls to `strtok` is non-reentrant. That means, while we are in the 
 `strtok_r` instead, lets us to save the context in a pointer and pass it everytime we call `strtok_r` so, this is re-entrant and thread safe as well, assuming we are not passing some global variable to store the context across multiple invocations or different threads.
 
 Locks can be kept inside to make sure thread safety is achieved, but locks cannot be used for re-entrancy, it can result in deadlock! A function that is completely stateless is both re-entrant and thread safe!
+
+There is also async-signal-safe! Signals can happen at unusual times and if a function is called in the context of a signal, then it could be potentially called twice in the same context because a signal handler got invoked in the same context. So, if a function is re-entrant, then it could be technically async-signal-safe.
+
+Re-entrancy, then is the strongest check for a function!
