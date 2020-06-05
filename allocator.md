@@ -91,7 +91,7 @@ get_free_block(size_t size)
 }
 ```
 
-We are looking for a match here that is large enough to serve the current request. This may not be a good way to find the best match, but it works! If we search till the end of the list, then we may find a more perfect block that serves the current request. In that case, the complexity of finding a free block is constant and proportional to the size of the free list. But we digress.
+We are looking for a match here that is large enough to serve the current request. When a match is found, the block is removed from the list (the classic "remove a node from a singly linked list" interview question). This may not be a good way to find the best match, but it works! If we search till the end of the list, then we may find a more perfect block that serves the current request. In that case, the complexity of finding a free block is constant and proportional to the size of the free list. But we digress.
 
 Now that we have `get_free_block`, its pretty easy to write `malloc2` (not to confuse with classic `malloc`)
 
@@ -134,3 +134,46 @@ malloc2(size_t size)
 }
 ```
 
+Please note, the newly allocated block is not kept in any list. All the allocated blocks are with user and user will free them. One disadvantage with this approach is that if the user loses a reference to the allocated block, then the block is eternally lost. Well, malloc essentially does the same, so this is not such a bad implementation. If the allocator need to provide debug information, then it can have another allocated list which it can walk through to list the blocks that are not freed. So, it is very important to keep the end goal in mind and design the software such that it is easily extensible.
+
+Now comes the `free2` function. It tries to locate the header, and then checks if the block that is going to be freed is at the top of the heap i.e. it is at the *break*. If so, this can be released to the operating system, if not, then the only thing that can be done is to put it in the free list and hope for it to be used again. Here is the `free2` function:
+
+```c
+void
+free2(void *block)
+{
+    header_t *header = NULL;
+    size_t total_size;
+
+    if (block == NULL) {
+        return NULL;
+    }
+
+    header = (header_t *)block - 1;
+    total_size = header->h.size + sizeof (header_t);
+
+    if ((char *)header + total_size == allocator_break) {
+        /* This can be given back to the operating system */
+        sbrk(-total_size);
+    } else {
+        /* put it in the free list */
+        put_free_block(header);
+    }
+
+    return;
+}
+```
+
+And a very simple function to put the block in the free list, if it cannot be released to OS.
+
+```c
+void
+put_free_block(header_t *header)
+{
+    /* Insert it at the head of the list */
+    header->next = free_list_head;
+    free_list_head = header;
+}
+```
+
+We insert the block at the head so as to honor MRU policy.
