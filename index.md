@@ -1,3 +1,3 @@
-# This is a sample page
+# Posts
 
-Here is one page: [a simple one](sample)
+[On writing a REPL shell] (repl-shell)
