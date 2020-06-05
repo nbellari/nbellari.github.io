@@ -16,5 +16,17 @@ The stack and heap are the ones that are generally keep changing in size (stack,
 
 The system call that changes this break in the address space is `sbrk`. `sbrk(0)` gives the current break in the address space, `sbrk(x)` increases the address space by `x` bytes, while `sbrk(-x)` gives back `x` bytes to the operating system. That said, `sbrk` is not the only way to extend the memory. `mmap` can also be used to extend the memory. However, with `sbrk` memory can only be operated in LIFO order - that is, if you extend it a couple of times, only the latest expanded portion can be contracted first. `sbrk` is also, apparently, not thread safe.
 
-Life would have been simpler, if we had requested memory from operating system when needed and gave it back when we are done with it. For various reasons, OS does not choose to do that. For example, how the memory is to be kept and managed with in a process context is not OS business. So, while we happily get more memory from the OS with `sbrk`, because of its LIFO nature (described earlier), we cant give back the memory in any order. So, then, we have to do some book keeping on our own for the purpose of freeing the memory in arbitrary order.
+Life would have been simpler, if we had requested memory from operating system when needed and gave it back when we are done with it. For various reasons, OS does not choose to do that. For example, how the memory is to be kept and managed with in a process context is not OS business. So, while we happily get more memory from the OS with `sbrk`, because of its LIFO nature (described earlier), we cant give back the memory in any order.
 
+So, then, we have to do some book keeping on our own for the purpose of freeing the memory in arbitrary order. And not just that, since the memory cannot be given back to the OS, it has to be kept back. And because it can be kept back it can be used to serve future malloc requests. Thus, an allocator also acts as a kind of cache between the application and operating system.
+
+So, then, what are we supposed to maintain for book keeping? To understand that, we need to understand the workflow of malloc/free
+
+* malloc allocates a memory and returns the pointer to the allocated region
+  * It should first search the free list, if such a request can be satisfied with the given free blocks, if so return one
+  * If not, use `sbrk` to get more from the OS and then return it
+* free releases the memory pointed to by the given pointer
+  * Puts the memory back in the free list
+  * Occasionally it should try to see if some memory can be given back to the OS
+  
+There are other things that an allocator can do - like maintaining statistics, adding some memory around the allocated memory and try to detect if the memory is overwritten (both during free as well as periodically), but those are additional features to the allocator, which can be dealt with later.
