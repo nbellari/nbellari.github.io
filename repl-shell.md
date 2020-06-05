@@ -2,7 +2,7 @@
 
 ## Introduction
 
-I have finally decided to do some DIY projects so that I regain my level of comfort with coding. Towards that end, I decided to start with [Stephen Brennan] (https://brennan.io/)'s famous tutorial on [how to write a shell] (https://brennan.io/2015/01/16/write-a-shell-in-c/)
+I have finally decided to do some DIY projects so that I regain my level of comfort with coding. Towards that end, I decided to start with [Stephen Brennan](https://brennan.io/)'s famous tutorial on [how to write a shell](https://brennan.io/2015/01/16/write-a-shell-in-c/)
 
 ## Details
 
@@ -40,7 +40,6 @@ Then what is the correct way to read the command line into memory? The right app
             buffer = realloc(buffer, bufsize);
         }
     }
-}
 
 ```
 
