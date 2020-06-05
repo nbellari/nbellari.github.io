@@ -54,11 +54,43 @@ typedef union {
 #define ALLOCATOR_HEADER_SIZE sizeof(header_t);
 ```
 
-We also talked about maintaining a free list so that we can keep track of free blocks that can serve future requests. For that, we need to have a list. Lets maintain a singly linked list for now:
+We also talked about maintaining a free list so that we can keep track of free blocks that can serve future requests. For that, we need to have a list. Lets maintain a singly linked list for now with a head and tail. Basically this is a unsorted linked list where we append free blocks to the tail and search for a free block from head to tail until we find a match:
 
 ```c
 /* Free list */
-header_t *allocator_free_list;
+header_t *free_list_head, *free_list_tail;
 ```
 
-Initially `allocator_free_list` will be `NULL`. So, when a first malloc request comes, we have to `sbrk`
+Initially `allocator_free_list` will be `NULL`. So, when a first malloc request comes, we have to `sbrk`. Any free block, if found in the list, must be removed from the list before returning it. Here is the function `get_free_block`
+
+```c
+/* Function to get a free block from the free list, if one is available */
+void *
+get_free_block(size_t size)
+{
+    header_t *cur = free_list_head, *prev = free_list_head;
+    header_t *free = NULL;
+
+    while (cur) {
+        /* Exact match may not be found */
+        if (cur->h.size >= size) {
+            free = cur;
+            if (cur == free_list_head) {
+                free_list_head = free_list_head->next;
+            } else {
+                prev->next = cur->next;
+            }
+            break;
+        } else {
+            prev = cur;
+            cur = cur->next;
+        }
+    }
+
+    return free;
+}
+```
+
+We are looking for a match here that is large enough to serve the current request. This may not be a good way to find the best match, but it works! If we search till the end of the list, then we may find a more perfect block that serves the current request. In that case, the complexity of finding a free block is constant and proportional to the size of the free list. But we digress.
+
+
