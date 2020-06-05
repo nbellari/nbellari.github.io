@@ -1,7 +1,9 @@
 # Posts
 
-[On writing a REPL shell](repl-shell)
+[A note on strtok](note-on-strtok)
+
+[Memory Allocator](allocator)
 
 [C Programming Notes](c-tidbits)
 
-[Memory Allocator](allocator)
+[On writing a REPL shell](repl-shell)
