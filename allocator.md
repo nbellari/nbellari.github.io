@@ -37,13 +37,19 @@ Since this structure is co-located with memory, care should be taken such that t
 
 ```c
 /* Lets keep it simple, and grow as needed */
-union header {
+struct header {
     int size; /* size of the allocated memory, excluding the header */
-    union header *next; /* Points to the next element in the free list */
-    char _align[16]; /* This chunk of memory (header) will be aligned to 16 bytes */
+    struct header *next; /* Points to the next element in the free list */
 };
+```
 
-typedef union header header_t;
+To make it aligned properly, we do this:
+```c
+/* Lets keep it simple, and grow as needed */
+typedef union {
+    struct header h;
+    char _align[16]; /* This chunk of memory (header) will be aligned to 16 bytes */
+} header_t;
 
 #define ALLOCATOR_HEADER_SIZE sizeof(header_t);
 ```
