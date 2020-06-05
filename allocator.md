@@ -35,4 +35,24 @@ Since `free` only gives a pointer back to the allocator, to be able to know the 
 
 Since this structure is co-located with memory, care should be taken such that the memory address returned to the caller is properly aligned, otherwise there will be cache mis-alignment issues with the returned memory (i.e. it may end up crossing the cache lines). So, such a header definition looks like this:
 
+```c
+/* Lets keep it simple, and grow as needed */
+union header {
+    int size; /* size of the allocated memory, excluding the header */
+    union header *next; /* Points to the next element in the free list */
+    char _align[16]; /* This chunk of memory (header) will be aligned to 16 bytes */
+};
 
+typedef union header header_t;
+
+#define ALLOCATOR_HEADER_SIZE sizeof(header_t);
+```
+
+We also talked about maintaining a free list so that we can keep track of free blocks that can serve future requests. For that, we need to have a list. Lets maintain a singly linked list for now:
+
+```c
+/* Free list */
+header_t *allocator_free_list;
+```
+
+Initially `allocator_free_list` will be `NULL`. So, when a first malloc request comes, we have to `sbrk`
