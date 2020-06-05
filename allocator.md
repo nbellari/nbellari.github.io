@@ -76,14 +76,14 @@ get_free_block(size_t size)
         if (cur->h.size >= size) {
             free = cur;
             if (cur == free_list_head) {
-                free_list_head = free_list_head->next;
+                free_list_head = free_list_head->h.next;
             } else {
-                prev->next = cur->next;
+                prev->h.next = cur->h.next;
             }
             break;
         } else {
             prev = cur;
-            cur = cur->next;
+            cur = cur->h.next;
         }
     }
 
@@ -93,4 +93,44 @@ get_free_block(size_t size)
 
 We are looking for a match here that is large enough to serve the current request. This may not be a good way to find the best match, but it works! If we search till the end of the list, then we may find a more perfect block that serves the current request. In that case, the complexity of finding a free block is constant and proportional to the size of the free list. But we digress.
 
+Now that we have `get_free_block`, its pretty easy to write `malloc2` (not to confuse with classic `malloc`)
+
+```c
+void *
+malloc2(size_t size)
+{
+    size_t total_size;
+    void *block;
+    header_t *header;
+
+    if (size == 0) {
+        return NULL;
+    }
+
+    /* Try to find from the free list */
+    header = (header_t *)get_free_block(size);
+    if (header != NULL) {
+        block = (void *)(header + 1);
+        return block;
+    }
+
+    /* Get from OS */
+    total_size = size + sizeof(header_t);
+    header = sbrk(total_size);
+
+    if (header == (void *)-1) {
+        /* Cannot grow the process, serious error!
+         * However, we simply return NULL, taking action
+         * is caller's responsibility
+         */
+        return NULL;
+    }
+
+    /* record the size */
+    header->h.size = size;
+    header->h.next = NULL;
+    block =  (void *)(header + 1);
+    return block;
+}
+```
 
