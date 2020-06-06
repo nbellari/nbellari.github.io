@@ -176,4 +176,74 @@ put_free_block(header_t *header)
 }
 ```
 
-We insert the block at the head so as to honor MRU policy.
+We insert the block at the head so as to honor MRU policy. There are two more functions to be implemented `calloc` and `realloc`. `calloc` zeroes the memory before returning:
+
+```c
+void *
+calloc2(size_t n, size_t size)
+{
+    size_t total_size;
+    void *block;
+
+    if (!n || !size) {
+        return NULL;
+    }
+
+    total_size = n * size;
+
+    if (size != total_size/n) {
+        return NULL;
+    }
+
+    block = malloc(total_size);
+
+    if (block) {
+        memset(block, 0, total_size);
+    }
+
+    return block;
+}
+```
+
+One thing to note here is that after multiplying `size` with `n` we check if the resultant multiplication has not overflown. These are some of the things that one needs to take care of in C. Other than that, there is nothing special about the function.
+
+`realloc` has to copy the contents and free the old memory before returning the new one.
+
+```c
+void *
+realloc2(void *block, size_t size)
+{
+    header_t *header;
+    size_t orig_size;
+    void *new_block;
+
+    if (!block || !size) {
+        return NULL;
+    }
+
+    header = (header_t *)block - 1;
+    orig_size = header->h.size;
+
+    /* Since the block allocated need not be of exact same size,
+     * it makes sense to check if the original block size can satisfy
+     * the requested size
+     */
+    if (orig_size >= size) {
+        return block;
+    }
+    
+    new_block = malloc(size);
+
+    if (!new_block) {
+        return NULL;
+    }
+
+    memcpy(new_block, block, orig_size);
+    free(block);
+
+    return new_block;
+
+}
+```
+
+One nuance to be noted here is that since the block allocated previously is not necessarily of the exact same size, we should check if it can satisfy the requested size. If so, there is no need to anything, we simply return the same old block!
