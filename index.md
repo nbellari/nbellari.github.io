@@ -1,3 +1,5 @@
+# [Some collection of links](good-reads)
+
 # Posts
 
 [A note on strtok](note-on-strtok)
