@@ -2,6 +2,8 @@
 
 # Posts
 
+[A hash table implementation](hash-table)
+
 [A note on strtok](note-on-strtok)
 
 [Memory Allocator](allocator)
