@@ -125,3 +125,37 @@ hash_table_get_bucket(htable_t *table, char *key, uint8_t new)
 
 As we can see, we take the bucket to be a weighted sum of two hash indexes. In the first run, we don't consider the second hash at all (i is 0). If we find an empty slot, then good! Otherwise we continue the iteration (now considering the second hash also into account) until we find an empty slot. Because it is possible that `idx` can circle back to the same index (because there is modulo, you see).
 
+Adding an element to a hash table, is simple, given this:
+
+
+```c
+void
+hash_table_add(void *hash_table, char *key, char *value)
+{
+    htable_t    *table = (htable_t *)hash_table;
+    ht_entry_t  *entry = hash_table_entry_get(table, key);
+
+    if (entry) {
+        /* Entry already present, overwrite the value */
+        free(entry->value);
+        entry->value = strdup(value);
+    } else {
+        /* Entry does not exist, add it */
+        hash_table_insert(hash_table, key, value);
+    }
+}
+
+static void
+hash_table_insert(void *hash_table, char *key, char *value)
+{
+    long            idx;
+    ht_entry_t      *entry = NULL;
+    htable_t        *table = (htable_t *)hash_table;
+
+    /* This does not return without a valid index */
+    idx = hash_table_get_bucket(hash_table, key, 1/*new*/);
+    entry = ht_entry_create(key, value);
+
+    table->ht_buckets[idx] = entry;
+}
+```
