@@ -123,4 +123,5 @@ hash_table_get_bucket(htable_t *table, char *key, uint8_t new)
 }
 ```
 
-As we can see, we take the bucket to be a weighted sum of two hash indexes. In the first run, we don't consider the second hash at all (i is 0). If we find an empty slot, then good! Otherwise we continue the iteration (now considering the second hash also into account) until we find an empty slot. 
+As we can see, we take the bucket to be a weighted sum of two hash indexes. In the first run, we don't consider the second hash at all (i is 0). If we find an empty slot, then good! Otherwise we continue the iteration (now considering the second hash also into account) until we find an empty slot. Because it is possible that `idx` can circle back to the same index (because there is modulo, you see).
+
