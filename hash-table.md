@@ -64,19 +64,58 @@ hash_table_create(long n_buckets)
 {
     htable_t *table;
 
-    if (!n_buckets) {
-        n_buckets = HT_DEFAULT_BUCKET_SIZE;
-    }
+    n_buckets = n_buckets ? next_prime(n_buckets) :
+                     next_prime(HT_DEFAULT_BUCKET_SIZE);
 
     table = calloc(1, sizeof(htable_t));
+    if (table == NULL) {
+        /* Memory allocation failure - serious */
+        return NULL;
+    }
+
     table->ht_buckets = calloc(n_buckets, sizeof(ht_entry_t *));
+    if (table->ht_buckets == NULL) {
+        /* Memory allocation failure - serious */
+        free(table);
+        return NULL;
+    }
+
     table->ht_n_buckets = n_buckets;
 
     return table;
 }
 ```
 
-The client can specify the number of buckets at the time of creation, but it if it's skipped, then a default is used. We allocate both the table as well as the bucket pointers which points a `ht_entry_t`.
+The client can specify the number of buckets at the time of creation, but it if it's skipped, then a default is used. It is important to keep the bucket count a prime number as it will result in lesser number of collisions. We allocate both the table as well as the bucket pointers which points a `ht_entry_t`. `next_prime` is a simple routine:
+
+```c
+bool
+is_prime(long x)
+{
+    long sqrt_x;
+
+    if (x < 2) return false;
+    if (x < 4) return true;
+    if (x%2 == 0) return false;
+
+    sqrt_x = floor(sqrt((double)x));
+    for (long i=3; i<sqrt_x; i++) {
+        if (x%i == 0) return false;
+    }
+
+    return true;
+}
+
+long
+next_prime(long x)
+{
+    while (!is_prime(x)) {
+        x++;
+    }
+
+    return x;
+}
+```
 
 ### Hashing methods
 
