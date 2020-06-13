@@ -123,10 +123,9 @@ hash_table_get_bucket(htable_t *table, char *key, uint8_t new)
 }
 ```
 
-As we can see, we take the bucket to be a weighted sum of two hash indexes. In the first run, we don't consider the second hash at all (i is 0). If we find an empty slot, then good! Otherwise we continue the iteration (now considering the second hash also into account) until we find an empty slot. Because it is possible that `idx` can circle back to the same index (because there is modulo, you see).
+As we can see, we take the bucket to be a weighted sum of two hash indexes. In the first run, we don't consider the second hash at all (i is 0). If we find an empty slot, then good! Otherwise we continue the iteration (now considering the second hash also into account) until we find an empty slot. Because it is possible that `idx` can circle back to the same index (there is modulo, you see, it is necessary to keep a tab on the number of iteartions.
 
 Adding an element to a hash table, is simple, given this:
-
 
 ```c
 void
@@ -159,3 +158,91 @@ hash_table_insert(void *hash_table, char *key, char *value)
     table->ht_buckets[idx] = entry;
 }
 ```
+
+Deleting is similar:
+
+```c
+void
+hash_table_delete(void *hash_table, char *key)
+{
+    htable_t    *table = (htable_t *)hash_table;
+    long        idx = hash_table_get_bucket(table, key, 0/*new*/);
+    ht_entry_t  *entry;
+
+    if (idx < 0) {
+        /* nothing to do */
+        return;
+    }
+
+    entry = table->ht_buckets[idx];
+    table->ht_buckets[idx] = NULL;
+    ht_entry_delete(entry);
+    return;
+}
+```
+
+We call the same `hash_table_get_bucket` but with a `0` so instead of returning a valid index, it returns `-1` highlighting that such an element does not exist in the hash table. Needless to say, a hash table search is pretty straight forward:
+
+```c
+char *
+hash_table_search(void *hash_table, char *key)
+{
+    htable_t *table = (htable_t *)hash_table;
+    ht_entry_t  *entry = hash_table_entry_get(table, key);
+
+    if (entry) {
+        return entry->value;
+    }
+
+    return NULL;
+}
+```
+
+If we look at the API of the hash table, we see that there is also a `hash_table_destroy` provided. It is possible that there are some elements in the hash table, so we need to walk through the table and clean up the elements before destroying the hash table:
+
+```c
+void
+hash_table_destroy(void *hash_table)
+{
+    htable_t    *table = (htable_t *)hash_table;
+
+    if (!table) {
+        return;
+    }
+
+    /* Loop through all the elements, free all the elements
+     * and then destroy the hash table
+     */
+    ht_entry_flush_all(table);
+
+    /* Free the buckets */
+    free(table->ht_buckets);
+
+    /* Free the table */
+    free(table);
+
+    return;
+}
+
+static void
+ht_entry_flush_all(htable_t *table)
+{
+    int         i;
+    ht_entry_t  *entry, *next;
+
+    for (i=0; i<table->ht_n_buckets; i++) {
+        if (table->ht_buckets[i]) {
+            entry = table->ht_buckets[i];
+            /* Delete all the entries in the bucket */
+            while (entry) {
+                next = entry->next;
+                ht_entry_delete(entry);
+                entry = next;               
+            }
+        }
+    }
+
+}
+```
+
+The function `ht_entry_flush_all` takes care of flushing the elements properly.
