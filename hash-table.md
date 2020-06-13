@@ -245,4 +245,4 @@ ht_entry_flush_all(htable_t *table)
 }
 ```
 
-The function `ht_entry_flush_all` takes care of flushing the elements properly.
+The function `ht_entry_flush_all` takes care of flushing the elements properly. The `prev` and the `next` fields are not used here, but they are still referenced here in the function. This is just a placeholder for a future modification. In case we decide to change the hash collision resolution method and go for chaining, then this will be handy.
