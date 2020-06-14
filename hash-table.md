@@ -1,4 +1,4 @@
-# Writing a Hash Table
+# Implementing a Hash Table
 
 This is my journey of implementing a hash table. There are two main things when we are implementing a data structure - providing the necessary interface for the clients to use and the actual implementation details.
 
