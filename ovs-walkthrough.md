@@ -34,7 +34,41 @@ At a time, `recv_upcalls` handles 64 miss upcalls. `recv_bufs` are buffer descri
         }
 ```
 
-`dpif_recv` fills the `dupcall` with necessary information by storing any packet data in `recv_buf`. 
+`dpif_recv` fills the `dupcall` with necessary information by storing any packet data in `recv_buf`. Then, once the related information is extracted in `dupcall` like the packet and netlink attributes, they are converted to a `flow`:
+
+```c
+        if (odp_flow_key_to_flow(dupcall->key, dupcall->key_len, flow)
+            == ODP_FIT_ERROR) {
+            goto free_dupcall;
+        }
+```
+
+Then the whole upcall structure is initialized with `upcall_receive`:
+
+```c
+        error = upcall_receive(upcall, udpif->backer, p_packet,
+                               dupcall->type, dupcall->userdata, flow, mru,
+                               &dupcall->ufid, dupcall->pmd_thread_id);
+```
+
+Among things of interest, `in_port` and `ofproto` in upcall need to be populated to identify the bridge and the port in which the packet came. All other fields of `upcall` stricture are initialized. In essence, we are translating information from `dupcall` to `upcall`. In case, no `in_port` or `ofproto` is found, then a flow is installed with a drop action - since we have all the netlink attributes in `dupcall`, it is used to install the flow. The `actions` passed is NULL so it will be a drop:
+
+```c
+                dpif_flow_put(udpif->dpif, DPIF_FP_CREATE, dupcall->key,
+                              dupcall->key_len, NULL, 0, NULL, 0,
+                              &dupcall->ufid, PMD_ID_NULL, NULL);
+```
+
+Then we extract packet fields into the `flow` (earlier we translated netlink attributes to `flow` with `odp_flow_key_to_flow` and finally process the upcall:
+
+```c
+        error = process_upcall(udpif, upcall,
+                               &upcall->odp_actions, &upcall->wc);
+        if (error) {
+            goto cleanup;
+        }
+```
+
 
 ## Some Utility Functions
 
