@@ -69,6 +69,20 @@ Then we extract packet fields into the `flow` (earlier we translated netlink att
         }
 ```
 
+This takes care of walking through the ofproto tables and constructing the megaflow and the actions needed. The actual job of installing the flows into the data path is taken care of by `handle_upcalls`:
+
+```c
+    if (n_upcalls) {
+        handle_upcalls(handler->udpif, upcalls, n_upcalls);
+        for (i = 0; i < n_upcalls; i++) {
+            dp_packet_uninit((struct dp_packet *)upcalls[i].packet);
+            ofpbuf_uninit(&recv_bufs[i]);
+            upcall_uninit(&upcalls[i]);
+        }
+    }
+```
+
+After installing the flows, the allocated structures are freed.
 
 ## Some Utility Functions
 
