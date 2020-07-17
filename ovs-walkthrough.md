@@ -259,8 +259,19 @@ The `odp_port_to_ofport` function will look at the `odp_to_ofport_map` hash in `
 
 ### flow_extract
 
-This function takes `dp_packet` which contains the packet per se and the packet metadata and converts it into a flow. `packet->md` is populated from `flow` itself which is populated from `odp_flow_key_to_flow` - a function that populates stuff such as `recirc_id`, `dp_hash`, `pkt_mark`, `skb_priority` and other conntrack related states.
+This function takes `dp_packet` which contains the packet per se and the packet metadata and converts it into a flow. `packet->md` is populated from `flow` itself which is populated from `odp_flow_key_to_flow` - a function that populates stuff such as `recirc_id`, `dp_hash`, `pkt_mark`, `skb_priority` and other conntrack related states. `flow_extract` converts a packet into a `flow` via a `miniflow`:
 
+```c
+    struct {
+        struct miniflow mf;
+        uint64_t buf[FLOW_U64S];
+    } m;
+
+    miniflow_extract(packet, &m.mf);
+    miniflow_expand(&m.mf, flow);
+```
+
+It extracts the packet contents into a `miniflow` and then expands it to a `flow`
 
 
 ## Some Utility Functions
