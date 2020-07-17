@@ -273,6 +273,103 @@ This function takes `dp_packet` which contains the packet per se and the packet 
 
 It extracts the packet contents into a `miniflow` and then expands it to a `flow`
 
+### miniflow_extract
+
+To begin with, the passed miniflow is taken into a `mf_ctx` - the `data` in `mf` points to the values that start after the `map` in `miniflow`:
+
+```c
+    struct mf_ctx mf = { FLOWMAP_EMPTY_INITIALIZER, values,
+                         values + FLOW_U64S };
+```
+
+And here a long journey of going through different attributes in `packet` begins and then the corresponding bits are set in the `miniflow`. Let's first look at some miniflow utility functions.
+
+#### miniflow_push_words
+
+The macro looks like this:
+
+```c
+#define miniflow_push_words(MF, FIELD, VALUEP, N_WORDS)                 \
+    miniflow_push_words_(MF, offsetof(struct flow, FIELD), VALUEP, N_WORDS)
+```
+
+It takes the `mf_ctx` in `MF`, the `FIELD` in the `flow` structure that is being pushed (the set of values that follow after the map - are appended), the pointer to the data `VALUEP` and number of words. Let's take a simple example from `miniflow_extract`:
+
+```c
+    if (flow_tnl_dst_is_set(&md->tunnel)) {
+        miniflow_push_words(mf, tunnel, &md->tunnel,
+                            offsetof(struct flow_tnl, metadata) /
+                            sizeof(uint64_t));
+```
+
+If tunnel is set, then this snippet pushes everything in flow_tnl, except metadata, in units of 8 bytes. Also, `md->tunnel` is where the data is available and `tunnel` the field in `flow` structure where this data is supposed to be copied. Since this is a `miniflow`, it will set the corresponding bitmap in the `map` and copies the data to `values`:
+
+```c
+#define miniflow_push_words_(MF, OFS, VALUEP, N_WORDS)          \
+{                                                               \
+    MINIFLOW_ASSERT((OFS) % 8 == 0);                            \
+    miniflow_set_maps(MF, (OFS) / 8, (N_WORDS));                \
+    memcpy(MF.data, (VALUEP), (N_WORDS) * sizeof *MF.data);     \
+    MF.data += (N_WORDS);                                       \
+}
+```
+
+The `mf_ctx` which is initially populated with passed flow map and its data, is used by these functions to fill it. The bitmap is set through `flowmap_set` which is called from `miniflow_set_maps`:
+
+```c
+flowmap_set(struct flowmap *fm, size_t idx, unsigned int n_bits)
+{
+    map_t n_bits_mask = (MAP_1 << n_bits) - 1;
+    size_t unit = idx / MAP_T_BITS;
+
+    idx %= MAP_T_BITS;
+
+    fm->bits[unit] |= n_bits_mask << idx;
+    if (unit + 1 < FLOWMAP_UNITS && idx + n_bits > MAP_T_BITS) {
+        fm->bits[unit + 1] |= n_bits_mask >> (MAP_T_BITS - idx);
+    }
+}
+```
+
+The if clause catches the situation where the offset in the bitmap, together with number of bits to be set, crosses the unit boundary. In such case, the remaining bits are set in the next unit (unit 1).  Lets look at one other such macro:
+
+```c
+#define miniflow_push_uint32_(MF, OFS, VALUE)   \
+    {                                           \
+    if ((OFS) % 8 == 0) {                       \
+        miniflow_set_map(MF, OFS / 8);          \
+        *(uint32_t *)MF.data = VALUE;           \
+    } else if ((OFS) % 8 == 4) {                \
+        miniflow_assert_in_map(MF, OFS / 8);    \
+        *((uint32_t *)MF.data + 1) = VALUE;     \
+        MF.data++;                              \
+    }                                           \
+}
+```
+When a `uint32` is to be set, it can either fall at the 8 byte boundary or it can fall at the 4 byte boundary. If it is the former case, then `data` at current position is set with value. Since `data` can hold 4 more bytes, it is not incremented here. If the given value, in `flow`, falls at the 4 byte boundary, then the remaining 4 bytes at `data` is written to and the `data` pointer is incremented. Lets look at another one:
+
+```c
+#define miniflow_push_uint16_(MF, OFS, VALUE)   \
+{                                               \
+    MINIFLOW_ASSERT(MF.data < MF.end);          \
+                                                \
+    if ((OFS) % 8 == 0) {                       \
+        miniflow_set_map(MF, OFS / 8);          \
+        *(uint16_t *)MF.data = VALUE;           \
+    } else if ((OFS) % 8 == 2) {                \
+        miniflow_assert_in_map(MF, OFS / 8);    \
+        *((uint16_t *)MF.data + 1) = VALUE;     \
+    } else if ((OFS) % 8 == 4) {                \
+        miniflow_assert_in_map(MF, OFS / 8);    \
+        *((uint16_t *)MF.data + 2) = VALUE;     \
+    } else if ((OFS) % 8 == 6) {                \
+        miniflow_assert_in_map(MF, OFS / 8);    \
+        *((uint16_t *)MF.data + 3) = VALUE;     \
+        MF.data++;                              \
+    }                                           \
+}
+```
+Going by the above logic for `miniflow_push_uint32` this should be pretty straightforward to follow. Only in the case where the 2 bytes that are to be written are in the last two bytes of `data`, it is written and `data` is incremented.
 
 ## Some Utility Functions
 
