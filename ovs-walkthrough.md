@@ -2,13 +2,25 @@
 
 ## Some Data Structures
 
+### udpif
+
 `struct udpif` is basically a upcall handler context that has information about the set of `handlers` that handle the upcalls, set of `revalidators` that handle the flow updation in the fast path, `dpif` the datapath handle, `dump_seq` for dumping all the flows and `reval_seq` for controlling the revalidation, `ukeys` that contain the hash of flow keys which are installed in the fast path and other flow related statistics such as `flow_limit`, `n_flows`, `max_n_flows` etc.
+
+### ofpbuf
 
 `struct ofpbuf` is a descriptor of a buffer which is gotten through some means (from heap or stack etc.). It contains various pointers into the buffer such as `base`, `data`, `header`, `msg` etc and its capacity in `size, allocated`. It can be made to point to some memory area by calling `ofpbuf_use_stub`, for example.
 
+### dpif_upcall
+
 `struct dpif_upcall` contains information about a packet sent from the data path (be it kernel or DPDK). It contains the `packet` itself, `key`, a set of netlink attributes that describe various packet metadata (like input port or tunnel etc.), `ufid` the unique identifier for a flow (in case of revalidation) etc.
 
+### upcall
+
 `struct upcall` contains the context needed for installing a flow in the data path. It contains `flow` which represents the packet's needed parameters, `in_port` from which the packet came in, `xout` result of translating actions, `odp_actions` a set of data path actions, `wc` the wildcard masks that are accumulated by walking through the ofproto tables, `dump_seq` and `reval_seq` the values of the global sequence number cached for later comparison etc.
+
+### flow
+
+`struct flow` is the one that contains all the needed packet data and meta-data required to match a flow. `flow` contains five sections of data. Metadata, L2 fields, L3 fields, L4 fields and L7 fields. OVS does a staged lookup, so it does access them in this order. Metadata principally consists of `regs` that hold various pieces of information during staged lookup, `skb_priority`, `pkt_mark`, `dp_hash`, `in_port`, `recirc_id`, `actset_output` the output port to which the packets needs to be sent out and other conntrack related information. Other layer fields are straightforward, L7 fields need some explanation.
 
 ## Some Function Walkthroughs
 
@@ -59,7 +71,7 @@ Among things of interest, `in_port` and `ofproto` in upcall need to be populated
                               &dupcall->ufid, PMD_ID_NULL, NULL);
 ```
 
-Then we extract packet fields into the `flow` (earlier we translated netlink attributes to `flow` with `odp_flow_key_to_flow` and finally process the upcall:
+Then we extract packet fields into the `flow` (earlier we translated netlink attributes to `flow` with `odp_flow_key_to_flow`) and finally process the upcall:
 
 ```c
         error = process_upcall(udpif, upcall,
@@ -229,6 +241,12 @@ odp_port_to_ofport(const struct dpif_backer *backer, odp_port_t odp_port)
 ```
 
 The `odp_port_to_ofport` function will look at the `odp_to_ofport_map` hash in `backer` and retrieve the corresponding ofport.
+
+### flow_extract
+
+This function takes `dp_packet` which contains the packet per se and the packet metadata and converts it into a flow. `packet->md` is populated from `flow` itself which is populated from `odp_flow_key_to_flow` - a function that populates stuff such as `recirc_id`, `dp_hash`, `pkt_mark`, `skb_priority` and other conntrack related states.
+
+
 
 ## Some Utility Functions
 
