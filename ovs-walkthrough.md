@@ -284,9 +284,7 @@ To begin with, the passed miniflow is taken into a `mf_ctx` - the `data` in `mf`
 
 And here a long journey of going through different attributes in `packet` begins and then the corresponding bits are set in the `miniflow`. Let's first look at some miniflow utility functions.
 
-#### miniflow_push_words
-
-The macro looks like this:
+One of the macros looks like this:
 
 ```c
 #define miniflow_push_words(MF, FIELD, VALUEP, N_WORDS)                 \
@@ -371,6 +369,27 @@ When a `uint32` is to be set, it can either fall at the 8 byte boundary or it ca
 ```
 
 Going by the above logic for `miniflow_push_uint32` this should be pretty straightforward to follow. Only in the case where the 2 bytes that are to be written are in the last two bytes of `data`, it is written and `data` is incremented.
+
+Pushing metadata from the `dp_packet` to `miniflow` is achieved through the above macros. When it comes to adding packet data to the `miniflow`, the packet must first be parsed. Let's look at how L2 fields are copied to `miniflow`:
+
+```c
+        ASSERT_SEQUENTIAL(dl_dst, dl_src);
+        miniflow_push_macs(mf, dl_dst, data);
+        /* dl_type, vlan_tci. */
+        vlan_tci = parse_vlan(&data, &size);
+        dl_type = parse_ethertype(&data, &size);
+        miniflow_push_be16(mf, dl_type, dl_type);
+        miniflow_push_be16(mf, vlan_tci, vlan_tci);
+```
+
+The first macro asserts that `dl_dst` and `dl_src` are next to each other in `flow` because the next line `miniflow_push_macs` pushes both of them in one shot. `parse_vlan` returns the vlan id, if any, and `parse_ethertype` returns the eth type (after going past the vlan header). They are pushed to `miniflow`. I wonder why a 0 `vlan_tci` is pushed? Similarly, all the L3, L4 header fields are parsed later. For L3, IPv4 and IPv6 are parsed, for IPv6 extension headers are parsed, some classic L4 protocols are parsed. L7 is left, it is not touched here. Finally, the `map` in `mf_ctx` is put back in the original `miniflow` structure that is passed:
+
+```c
+ out:
+    dst->map = mf.map;
+```
+
+
 
 ## Some Utility Functions
 
