@@ -24,7 +24,18 @@
 
 ### miniflow
 
-A `miniflow` is a compressed version of a `flow` structure. It only says what fields are set in the `flow` structure. `miniflow` has one bit per 64-bits of the `flow` structure. 
+A `miniflow` is a compressed version of a `flow` structure. It consists of two parts:
+
+```c
+struct miniflow {
+    struct flowmap map;
+    /* Followed by:
+     *     uint64_t values[n];
+     * where 'n' is miniflow_n_values(miniflow). */
+};
+```
+
+The `map` is explicitly part of the `miniflow` structure and contains two `uint64_t`s where each bit tells us which `64-bit segment in the `flow` structure is non-zero. The second part consists of those 64-bit segments from `flow` which are non-zero (or to be considered). Refer to the links below that gives a pictorial representation of the same.
 
 ## Some Function Walkthroughs
 
