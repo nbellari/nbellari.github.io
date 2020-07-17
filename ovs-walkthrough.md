@@ -346,7 +346,7 @@ The if clause catches the situation where the offset in the bitmap, together wit
     }                                           \
 }
 ```
-When a `uint32` is to be set, it can either fall at the 8 byte boundary or it can fall at the 4 byte boundary. If it is the former case, then `data` at current position is set with value. Since `data` can hold 4 more bytes, it is not incremented here. If the given value, in `flow`, falls at the 4 byte boundary, then the remaining 4 bytes at `data` is written to and the `data` pointer is incremented. Lets look at another one:
+When a `uint32` is to be set, it can either fall at the 8 byte boundary or it can fall at the 4 byte boundary (that is how `flow` is designed). If it is the former case, then `data` at current position is set with value. Since `data` can hold 4 more bytes, it is not incremented here. If the given value, in `flow`, falls at the 4 byte boundary, then the remaining 4 bytes at `data` is written to and the `data` pointer is incremented. Lets look at another one:
 
 ```c
 #define miniflow_push_uint16_(MF, OFS, VALUE)   \
@@ -369,6 +369,7 @@ When a `uint32` is to be set, it can either fall at the 8 byte boundary or it ca
     }                                           \
 }
 ```
+
 Going by the above logic for `miniflow_push_uint32` this should be pretty straightforward to follow. Only in the case where the 2 bytes that are to be written are in the last two bytes of `data`, it is written and `data` is incremented.
 
 ## Some Utility Functions
