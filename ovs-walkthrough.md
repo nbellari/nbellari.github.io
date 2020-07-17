@@ -182,6 +182,54 @@ packet attribute is also set here:
     dp_packet_set_size(&upcall->packet, nl_attr_get_size(a[OVS_PACKET_ATTR_PACKET]));
 ```
 
+### upcall_receive
+
+After `dpif_recv` populates `dupcall` (`dpif_upcall`) with needed information, this function converts the same to `upcall` for further processing. In addition to initializing upcall fields and populating some with the passed parameters, one of the other things that it does is find the `ofproto` and `ofp_in_port` for the given context. Without that, the upcall handling cannot proceed
+
+```c
+    error = xlate_lookup(backer, flow, &upcall->ofproto, &upcall->ipfix,
+                         &upcall->sflow, NULL, &upcall->in_port);
+```
+
+### xlate_lookup
+
+This function tries to find them by calling `xlate_lookup_ofproto_`
+
+```c
+    ofproto = xlate_lookup_ofproto_(backer, flow, ofp_in_port, &xport);
+```
+
+As mentioned above, the `xport`, `xbridge`, `xbundle` data structures are used to map user space to fast path and vice versa. If we look into `xlate_lookup_ofproto_` function:
+
+```c
+    xport = xport_lookup(xcfg, tnl_port_should_receive(flow)
+                         ? tnl_port_receive(flow)
+                         : odp_port_to_ofport(backer, flow->in_port.odp_port));
+    *xportp = xport;
+    if (ofp_in_port) {
+        *ofp_in_port = xport->ofp_port;
+    }
+    return xport->xbridge->ofproto;
+```
+
+it does a `xport_lookup` from `xcfg` which is basically of type `struct xlate_cfg` that has hash maps of all the xports, xbridges and xbundles. In case, the packet has come in a tunnel, `tnl_port_should_receive` will return true and we will get the openflow port of tunnel by calling `tnl_port_receive`, else we simply call `odp_port_to_ofport`.
+
+```c
+struct ofport_dpif *
+odp_port_to_ofport(const struct dpif_backer *backer, odp_port_t odp_port)
+{
+    HMAP_FOR_EACH_IN_BUCKET (port, odp_port_node, hash_odp_port(odp_port),
+                             &backer->odp_to_ofport_map) {
+        if (port->odp_port == odp_port) {
+            return port;
+        }
+    }
+    return NULL;
+}
+```
+
+The `odp_port_to_ofport` function will look at the `odp_to_ofport_map` hash in `backer` and retrieve the corresponding ofport.
+
 ## Some Utility Functions
 
 * `ofp_packet_to_string` takes a packet (from `dp_packet`) and returns a string that has printable version of the packet. The caller has to free the data returned. 
