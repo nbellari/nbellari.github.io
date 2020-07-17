@@ -84,6 +84,104 @@ This takes care of walking through the ofproto tables and constructing the megaf
 
 After installing the flows, the allocated structures are freed.
 
+### dpif_recv
+
+The intial uplifting of getting the information about an upcall from the fast path is done by `dpif_recv`.
+
+```c
+    if (dpif->dpif_class->recv) {
+        error = dpif->dpif_class->recv(dpif, handler_id, upcall, buf);
+    }
+```
+
+As we can see, this is just a wrapper around the fast path specific receive function. For kernel as fast path, the function that is called is `dpif_netlink_recv`
+
+### dpif_netlink_recv__
+
+This function which is called by `dpif_netlink_recv` (non-Windows case), basically 
+
+```c
+    handler = &dpif->handlers[handler_id];
+    if (handler->event_offset >= handler->n_events) {
+        handler->event_offset = handler->n_events = 0;
+
+            retval = epoll_wait(handler->epoll_fd, handler->epoll_events,
+                                dpif->uc_array_size, 0);
+
+            handler->n_events = retval;
+
+    }
+```
+
+Every handler thread is associated with a netlink socket (the paper says the upcalls are distributed across netlink sockets - and there is one socket per upcall handler). The above snippet simply tries for `epoll` to get information about any events queued for this epoll socket and stores the number of events.
+
+```c
+while (handler->event_offset < handler->n_events) {
+        int idx = handler->epoll_events[handler->event_offset].data.u32;
+        struct dpif_channel *ch = &dpif->handlers[handler_id].channels[idx];
+
+          <snip>
+
+          error = nl_sock_recv(ch->sock, buf, false);
+          
+          <snip>
+          
+          error = parse_odp_packet(dpif, buf, upcall, &dp_ifindex);
+}
+```
+
+If there are events registered on epoll, then the information is received into the `buf` and then the packet is parsed from the `buf` through `parse_odp_packet`
+
+### parse_odp_packet
+
+`parse_odp_packet` is expecting a well known set of netlink attributes and simply takes them and populates the `dpif_upcall` structure. The first one that is tried for extraction is `ovs_header`:
+
+```c
+    nlmsg = ofpbuf_try_pull(&b, sizeof *nlmsg);
+    genl = ofpbuf_try_pull(&b, sizeof *genl);
+    ovs_header = ofpbuf_try_pull(&b, sizeof *ovs_header);
+```
+
+The `ofpbuf_try_pull` is similar to kernel's `skb_try_pull` where it tries to extract a portion of data and advances the buffer. Then, the remaining buffer is validated against a known `ovs_packet_policy` which has a set of netlink attributes defined in sequence.
+
+```c
+    if (!nlmsg || !genl || !ovs_header
+        || nlmsg->nlmsg_type != ovs_packet_family
+        || !nl_policy_parse(&b, 0, ovs_packet_policy, a,
+                            ARRAY_SIZE(ovs_packet_policy))) {
+        return EINVAL;
+    }
+```
+
+When the buffer `b` is walked through for entries in `ovs_packet_policy`, `a` (an array of netlink attributes) is populated in result. Following this, all other fields in `dpif_upcall` are populated:
+
+```c
+    type = (genl->cmd == OVS_PACKET_CMD_MISS ? DPIF_UC_MISS
+            : genl->cmd == OVS_PACKET_CMD_ACTION ? DPIF_UC_ACTION
+            : -1);
+
+    /* (Re)set ALL fields of '*upcall' on successful return. */
+    upcall->type = type;
+    upcall->pmd_thread_id = PMD_ID_NULL;
+    upcall->key = CONST_CAST(struct nlattr *,
+                             nl_attr_get(a[OVS_PACKET_ATTR_KEY]));
+    upcall->key_len = nl_attr_get_size(a[OVS_PACKET_ATTR_KEY]);
+```
+
+It is also at this place that the key gotten from fast path is converted to `ufid` by running it through a hash
+
+```c
+    dpif_flow_hash(&dpif->dpif, upcall->key, upcall->key_len, &upcall->ufid);
+```
+
+packet attribute is also set here:
+
+```c
+    dp_packet_set_data(&upcall->packet,
+                    (char *)dp_packet_data(&upcall->packet) + sizeof(struct nlattr));
+    dp_packet_set_size(&upcall->packet, nl_attr_get_size(a[OVS_PACKET_ATTR_PACKET]));
+```
+
 ## Some Utility Functions
 
 * `ofp_packet_to_string` takes a packet (from `dp_packet`) and returns a string that has printable version of the packet. The caller has to free the data returned. 
