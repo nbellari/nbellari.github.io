@@ -22,6 +22,10 @@
 
 `struct flow` is the one that contains all the needed packet data and meta-data required to match a flow. `flow` contains five sections of data. Metadata, L2 fields, L3 fields, L4 fields and L7 fields. OVS does a staged lookup, so it does access them in this order. Metadata principally consists of `regs` that hold various pieces of information during staged lookup, `skb_priority`, `pkt_mark`, `dp_hash`, `in_port`, `recirc_id`, `actset_output` the output port to which the packets needs to be sent out and other conntrack related information. Other layer fields are straightforward, L7 fields need some explanation.
 
+### miniflow
+
+A `miniflow` is a compressed version of a `flow` structure. It only says what fields are set in the `flow` structure. `miniflow` has one bit per 64-bits of the `flow` structure. 
+
 ## Some Function Walkthroughs
 
 ### recv_upcalls
@@ -254,8 +258,9 @@ This function takes `dp_packet` which contains the packet per se and the packet 
 * `odp_flow_format` takes a key coming from the data path and converts to a string. It can also replace openflow port numbers with names if a corresponding hash is provided.
 
 
-# Some Nuggets from OpenVSwitch Mailing Lists
+# Some Links that Contain Useful Information
 
 * This [response](https://mail.openvswitch.org/pipermail/ovs-discuss/2013-August/030744.html) from Joe contains some information about *resubmit* and *recirculate* actions - where it is done.
 * One [response](https://mail.openvswitch.org/pipermail/ovs-discuss/2013-August/030855.html) from Reid Price on how the *internal* interface for a bridge is used.
+* This Intel article [about miniflows](https://software.intel.com/content/www/us/en/develop/articles/open-vswitch-subtable-show-tool.html) is informative, with pictures!
 
