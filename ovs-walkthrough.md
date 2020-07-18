@@ -41,6 +41,14 @@ struct miniflow {
 
 The `map` is explicitly part of the `miniflow` structure and contains two `uint64_t`s where each bit tells us which 64-bit segment in the `flow` structure is non-zero. The second part consists of those 64-bit segments from `flow` which are non-zero (or to be considered). Refer to the links below that gives a pictorial representation of the same.
 
+### dpif_backer
+
+This structure acts as a bridge between user space and fast path. It holds `dpif` the handle for kernel fast path global structure, `udpif` the handle for upcall global context, `odp_to_ofport_map` the hash map that maps fast path port to openflow port etc.
+
+### ofproto
+
+`ofproto` is the openflow implementation of a switch. It embodies `oftable`s which contain rules that match on some parameters and spell out an action. 
+
 ## Some Function Walkthroughs
 
 ### recv_upcalls
