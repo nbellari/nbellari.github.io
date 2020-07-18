@@ -35,7 +35,7 @@ struct miniflow {
 };
 ```
 
-The `map` is explicitly part of the `miniflow` structure and contains two `uint64_t`s where each bit tells us which `64-bit segment in the `flow` structure is non-zero. The second part consists of those 64-bit segments from `flow` which are non-zero (or to be considered). Refer to the links below that gives a pictorial representation of the same.
+The `map` is explicitly part of the `miniflow` structure and contains two `uint64_t`s where each bit tells us which 64-bit segment in the `flow` structure is non-zero. The second part consists of those 64-bit segments from `flow` which are non-zero (or to be considered). Refer to the links below that gives a pictorial representation of the same.
 
 ## Some Function Walkthroughs
 
@@ -389,8 +389,38 @@ The first macro asserts that `dl_dst` and `dl_src` are next to each other in `fl
     dst->map = mf.map;
 ```
 
+### miniflow_expand
 
+`miniflow_expand` is a simple function, which calls another one:
 
+```c
+miniflow_expand(const struct miniflow *src, struct flow *dst)
+{
+    memset(dst, 0, sizeof *dst);
+    flow_union_with_miniflow(dst, src);
+}
+```
+
+`flow_union_with_miniflow` calls the below function which walks through the miniflow and fills the flow. This filling is simple because the `dst` is converted to `uint64_t` and then fills the `dst` with the corresponding value from the `miniflow` if the corresponding bit is set in the `map`
+
+```c
+flow_union_with_miniflow_subset(struct flow *dst, const struct miniflow *src,
+                                struct flowmap subset)
+{
+    uint64_t *dst_u64 = (uint64_t *) dst;
+    const uint64_t *p = miniflow_get_values(src);
+    map_t map;
+
+    FLOWMAP_FOR_EACH_MAP (map, subset) {
+        size_t idx;
+
+        MAP_FOR_EACH_INDEX(idx, map) {
+            dst_u64[idx] |= *p++;
+        }
+        dst_u64 += MAP_T_BITS;
+    }
+}
+```
 ## Some Utility Functions
 
 * `ofp_packet_to_string` takes a packet (from `dp_packet`) and returns a string that has printable version of the packet. The caller has to free the data returned. 
