@@ -22,6 +22,10 @@
 
 `struct flow` is the one that contains all the needed packet data and meta-data required to match a flow. `flow` contains five sections of data. Metadata, L2 fields, L3 fields, L4 fields and L7 fields. OVS does a staged lookup, so it does access them in this order. Metadata principally consists of `regs` that hold various pieces of information during staged lookup, `skb_priority`, `pkt_mark`, `dp_hash`, `in_port`, `recirc_id`, `actset_output` the output port to which the packets needs to be sent out and other conntrack related information. Other layer fields are straightforward, L7 fields need some explanation.
 
+### flow_wildcards
+
+This is just a `struct flow` in disguise
+
 ### miniflow
 
 A `miniflow` is a compressed version of a `flow` structure. It consists of two parts:
