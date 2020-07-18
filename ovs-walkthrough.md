@@ -421,6 +421,26 @@ flow_union_with_miniflow_subset(struct flow *dst, const struct miniflow *src,
     }
 }
 ```
+
+### process_upcall
+
+Once all the needed information is transformed/ported to `upcall`, `process_upcall` is called to de-mux further processing based on the type of the upcall. The `classify_upcall` function basically converts a `dpif_upcall_type` to a `upcall_type`. `userdata` is used only if the upcall type is action. We are interested in walking through the miss upcall path, so we will be interested in what `upcall_xlate` does:
+
+```c
+static int
+process_upcall(struct udpif *udpif, struct upcall *upcall,
+               struct ofpbuf *odp_actions, struct flow_wildcards *wc)
+{
+    const struct nlattr *userdata = upcall->userdata;
+    const struct dp_packet *packet = upcall->packet;
+    const struct flow *flow = upcall->flow;
+
+    switch (classify_upcall(upcall->type, userdata)) {
+    case MISS_UPCALL:
+        upcall_xlate(udpif, upcall, odp_actions, wc);
+        return 0;
+```
+
 ## Some Utility Functions
 
 * `ofp_packet_to_string` takes a packet (from `dp_packet`) and returns a string that has printable version of the packet. The caller has to free the data returned. 
