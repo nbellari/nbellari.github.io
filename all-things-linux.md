@@ -31,3 +31,15 @@ Append to the end of the line
 Add quotes around a line
 
 `sed 's/^/"/;s/$/"/'`
+
+## Networking
+
+### PCI Device Handling
+
+To see the driver associated with a PCI device:
+
+`lspci -Dk`
+
+To bind/unbind a device to/from a driver:
+
+`echo -n <pci_device_id> > /sys/bus/pci/drivers/e100/[un]bind`
