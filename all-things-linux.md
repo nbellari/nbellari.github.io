@@ -30,4 +30,4 @@ Append to the end of the line
 
 Add quotes around a line
 
-`sed 's/\(.*\)\r/"\1"/g'`
+`sed 's/^/"/;s/$/"/'`
