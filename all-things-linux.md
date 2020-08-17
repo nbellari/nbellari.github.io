@@ -17,3 +17,9 @@ Set scrollback buffer size (in .byobu/.tmux.conf):
 Disable renaming of windows by shell:
 
 `set-option -g allow-rename off`
+
+## Sed
+
+Remove empty lines
+
+`sed -i '/^$/d' <input-file>`
