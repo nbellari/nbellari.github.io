@@ -43,3 +43,9 @@ To see the driver associated with a PCI device:
 To bind/unbind a device to/from a driver:
 
 `echo -n <pci_device_id> > /sys/bus/pci/drivers/e100/[un]bind`
+
+## Systemd
+
+Get a plot of the dependency of the services
+
+`systemd-analyze plot > boot-analysis.svg`
