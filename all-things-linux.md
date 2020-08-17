@@ -27,3 +27,7 @@ Remove empty lines
 Append to the end of the line
 
 `sed 's/$/ xyz/' filename`
+
+Add quotes around a line
+
+`sed 's/\(.*\)\r/"\1"/g'`
