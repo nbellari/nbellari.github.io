@@ -23,3 +23,7 @@ Disable renaming of windows by shell:
 Remove empty lines
 
 `sed -i '/^$/d' <input-file>`
+
+Append to the end of the line
+
+`sed 's/$/ xyz/' filename`
