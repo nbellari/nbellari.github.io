@@ -34,7 +34,7 @@ Add quotes around a line
 
 Append a line to the beginning of the file
 
-`sed '1 a/<text>/' filename`
+`sed '1i <text>' filename`
 
 ## Networking
 
