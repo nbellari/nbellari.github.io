@@ -30,7 +30,11 @@ Append to the end of the line
 
 Add quotes around a line
 
-`sed 's/^/"/;s/$/"/'`
+`sed 's/^/"/;s/$/"/' filename`
+
+Append a line to the beginning of the file
+
+`sed '1 a/<text>/' filename`
 
 ## Networking
 
