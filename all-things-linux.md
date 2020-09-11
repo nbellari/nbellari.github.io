@@ -48,6 +48,12 @@ To bind/unbind a device to/from a driver:
 
 `echo -n <pci_device_id> > /sys/bus/pci/drivers/e100/[un]bind`
 
+### Bonding
+
+To remove a bond interface from the system:
+
+`echo "-bond0" > /sys/class/net/bonding_masters # bond0 is the device name`
+
 ## Systemd
 
 Get a plot of the dependency of the services
