@@ -2,6 +2,12 @@
 
 This page covers most of the stuff that is related to Linux - commands, shortcuts, tidits etc. Mostly for my reference.
 
+## Processes
+
+Monitor a process and its children in one dashboard
+
+`top -H -p <pid>`
+
 ## RPM Stuff
 
 Find, to which RPM, a file belongs to:
