@@ -48,6 +48,12 @@ To bind/unbind a device to/from a driver:
 
 `echo -n <pci_device_id> > /sys/bus/pci/drivers/e100/[un]bind`
 
+### Sockets
+
+To see all the stats - tcp/udp/raw etc.
+
+`ss -a (or ip netns exec <ns> ss -a for the corresponding namespace)`
+
 ### Bonding
 
 To remove a bond interface from the system:
