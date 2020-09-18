@@ -34,6 +34,12 @@ Append to the end of the line
 
 `sed 's/$/ xyz/' filename`
 
+## Files
+
+Truncate a file
+
+`truncate -s 0 <file>`
+
 Add quotes around a line
 
 `sed 's/^/"/;s/$/"/' filename`
