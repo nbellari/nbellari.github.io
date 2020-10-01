@@ -64,7 +64,7 @@ Depending on what action is taken in the band, there are `ofp13_meter_band_drop`
 122 };
 ```
 
-** Functions
+## Functions
 
 `ofpacts_pull_openflow_instructions` pulls all the instructions from a given openflow message using the function `decode_openflow11_instructions` (inspite of the name). One interesting snippet in the function is like:
 
@@ -100,4 +100,4 @@ so, even though openflow 1.3 treats meter as an instruction, openflow 1.5 treats
 ** Meter is not part of action, meter is a separate instruction as action is
 * The latest openflow version is 1.5
 * `OFPRAW_OFPT13_METER_MOD`, `OFPRAW_OFPST13_METER_REPLY`, `OFPRAW_OFPST13_METER_CONFIG_REQUEST, `OFPRAW_OFPST13_METER_CONFIG_REPLY` are some of the meter related messages
-* A meter band is basically applies to a packet of a given flow when the rate of the packet is more than that measured in the band (the lowest among them). A meter band has a type associated with it that says whether it is drop or dscp-remark or some custom action (extensible). A given meter can have more than one band associated with it.
+* A meter band basically applies to a packet of a given flow when the rate of the packet is more than that measured in the band (the lowest among them). A meter band has a type associated with it that says whether it is drop or dscp-remark or some custom action (extensible). A given meter can have more than one band associated with it.
