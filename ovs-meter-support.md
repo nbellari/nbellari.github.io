@@ -133,6 +133,8 @@ so, even though openflow 1.3 treats meter as an instruction, openflow 1.5 treats
 
 `ofproto_create` will intialize `ofproto->meter_features` by calling `meter_get_features`.
 
+`handle_single_part_openflow` calls `handle_meter_mod` which handles meter related messages from the controller. `handle_add_meter`, `handle_modify_meter` and `handle_delete_meter` only modifies the meter table in `ofproto_class`. Its important to know which meter id is being referred to - the ofproto meter id or the provider meter id.
+
 ## Notes
 
 * In the first open flow version, a flow mod message would carry the action directly, however in subsequent versions, the flow mod contains an instruction - which can modify an action set and much more. So, technically an instruction is superior to action
