@@ -39,6 +39,31 @@ The meter action structure has two meter ids - one specified by the protocol and
  641 };
 ```
 
+`ofp13_meter_band_header` has the rate and burst size which applies to a packet when it is classified under this band:
+
+```c
+116 /* Common header for all meter bands */
+117 struct ofp13_meter_band_header {
+118     ovs_be16 type;       /* One of OFPMBT_*. */
+119     ovs_be16 len;        /* Length in bytes of this band. */
+120     ovs_be32 rate;       /* Rate for this band. */
+121     ovs_be32 burst_size; /* Size of bursts. */
+122 };
+123 OFP_ASSERT(sizeof(struct ofp13_meter_band_header) == 12);
+```
+
+Depending on what action is taken in the band, there are `ofp13_meter_band_drop` - which drops the packet when it falls under this band, `ofp13_meter_band_dscp_remark` - which rewrites the DSCP mark when it falls under the band and `ofp13_meter_band_experimenter` - which hints at custom actions. Note that all these structures can be type casted to `ofp13_meter_band_header` and all band types have the same length.
+
+`ofputil_meter_request_type` - identifies the kind of meter request that has come:
+
+```c
+118 enum ofputil_meter_request_type {
+119     OFPUTIL_METER_FEATURES,
+120     OFPUTIL_METER_CONFIG,
+121     OFPUTIL_METER_STATS
+122 };
+```
+
 ** Functions
 
 `ofpacts_pull_openflow_instructions` pulls all the instructions from a given openflow message using the function `decode_openflow11_instructions` (inspite of the name). One interesting snippet in the function is like:
@@ -66,8 +91,7 @@ so, even though openflow 1.3 treats meter as an instruction, openflow 1.5 treats
 8408     }
 ```
 
-
-
+`ofputil_pull_bands` - extracts the meter bands for a meter. Similarly, `ofputil_put_bands` encodes the meter bands back into openflow message.
 
 
 ## Notes
