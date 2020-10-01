@@ -64,6 +64,44 @@ Depending on what action is taken in the band, there are `ofp13_meter_band_drop`
 122 };
 ```
 
+`ofputil_meter_band_stats` just contains the packet count and byte count:
+
+```c
+ 46 struct ofputil_meter_band_stats {
+ 47     uint64_t packet_count;
+ 48     uint64_t byte_count;
+ 49 };
+```
+
+`ofputil_meter_features` is the openflow agent's (that is the switch's) expression of what it can support w.r.t meters. This is available through `ofproto`:
+
+```c
+101 struct ofputil_meter_features {
+102     uint32_t max_meters;        /* Maximum number of meters. */
+103     uint32_t band_types;        /* Can support max 32 band types. */
+104     uint32_t capabilities;      /* Supported flags. */
+105     uint8_t  max_bands;
+106     uint8_t  max_color;
+107 };
+```
+
+`meter` is a hash map of the configured meters indexed by meter id.  It also has a list of `rules` that refer to it - since, when a meter is deleted, all the rules associated with it have to be deleted:
+
+```c
+6592 struct meter {
+6593     struct hmap_node node;      /* In ofproto->meters. */
+6594     long long int created;      /* Time created. */
+6595     struct ovs_list rules;      /* List of "struct rule_dpif"s. */
+6596     uint32_t id;                /* OpenFlow meter_id. */
+6597     ofproto_meter_id provider_meter_id;
+6598     uint16_t flags;             /* Meter flags. */
+6599     uint16_t n_bands;           /* Number of meter bands. */
+6600     struct ofputil_meter_band *bands;
+6601 }
+```
+
+The `ofproto_class` structure has `meter_get_features`, `meter_set`, `meter_get` and `meter_del` functions implemented for meters support. 
+
 ## Functions
 
 `ofpacts_pull_openflow_instructions` pulls all the instructions from a given openflow message using the function `decode_openflow11_instructions` (inspite of the name). One interesting snippet in the function is like:
@@ -93,6 +131,7 @@ so, even though openflow 1.3 treats meter as an instruction, openflow 1.5 treats
 
 `ofputil_pull_bands` - extracts the meter bands for a meter. Similarly, `ofputil_put_bands` encodes the meter bands back into openflow message.
 
+`ofproto_create` will intialize `ofproto->meter_features` by calling `meter_get_features`.
 
 ## Notes
 
@@ -101,3 +140,4 @@ so, even though openflow 1.3 treats meter as an instruction, openflow 1.5 treats
 * The latest openflow version is 1.5
 * `OFPRAW_OFPT13_METER_MOD`, `OFPRAW_OFPST13_METER_REPLY`, `OFPRAW_OFPST13_METER_CONFIG_REQUEST, `OFPRAW_OFPST13_METER_CONFIG_REPLY` are some of the meter related messages
 * A meter band basically applies to a packet of a given flow when the rate of the packet is more than that measured in the band (the lowest among them). A meter band has a type associated with it that says whether it is drop or dscp-remark or some custom action (extensible). A given meter can have more than one band associated with it.
+* When meters are deleted, all the flows referring to it should also be deleted.
