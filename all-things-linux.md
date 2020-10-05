@@ -72,6 +72,14 @@ To remove a bond interface from the system:
 
 `echo "-bond0" > /sys/class/net/bonding_masters # bond0 is the device name`
 
+To get bonding mode information:
+
+`cat /proc/net/bonding/bondX`
+
+To set bonding mode to static, add the following in `/etc/sysconfig/network-scripts/ifcfg-bondX`:
+
+`BONDING_OPTS="mode=0"`
+
 ## Systemd
 
 Get a plot of the dependency of the services
