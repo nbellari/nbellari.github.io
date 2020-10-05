@@ -143,3 +143,4 @@ so, even though openflow 1.3 treats meter as an instruction, openflow 1.5 treats
 * `OFPRAW_OFPT13_METER_MOD`, `OFPRAW_OFPST13_METER_REPLY`, `OFPRAW_OFPST13_METER_CONFIG_REQUEST, `OFPRAW_OFPST13_METER_CONFIG_REPLY` are some of the meter related messages
 * A meter band basically applies to a packet of a given flow when the rate of the packet is more than that measured in the band (the lowest among them). A meter band has a type associated with it that says whether it is drop or dscp-remark or some custom action (extensible). A given meter can have more than one band associated with it.
 * When meters are deleted, all the flows referring to it should also be deleted.
+* `handle_meter_mod` calls `handle_delete_meter` which calls either `meter_delete` or `meter_delete_all` which calls `meter_destroy` after removing the meter from the hash map `ofproto->meters`
