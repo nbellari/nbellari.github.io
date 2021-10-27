@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 ---
 David Crashaw talks about [why a VPN is needed](https://tailscale.com/blog/remembering-the-lan/) in today's world. How was programming like in the olden days? In this own words:
 
@@ -17,4 +17,4 @@ Programming cannot be care-free anymore - especially if one wants to write softw
 
 - "You can set up your environment so you can focus on being creative. Writing a web service for use by your friends should not be a form of combat, where you spend your days worrying about XSS attacks or buffer overflows. You should be focused on creating something new and wonderful in a place without bad people hounding you."
 
-Now that can be a good vision statement for a [company](https://tailscale.com/)! 
+Now that can be a good vision statement for a [company](https://tailscale.com/)!
