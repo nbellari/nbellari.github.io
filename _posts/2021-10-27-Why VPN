@@ -1,0 +1,20 @@
+---
+published: false
+---
+David Crashaw talks about [why a VPN is needed](https://tailscale.com/blog/remembering-the-lan/) in today's world. How was programming like in the olden days? In this own words:
+
+- "The LAN was a magical place to learn about computers. Besides the physical aspect of assembling and disassembling machines, I could safely do things unthinkable on the modern internet: permission-less file sharing, experimental servers with no security, shared software where any one machine could easily bring down the network by typing in an innocuous command."
+
+- "My father, a general practitioner, used this infrastructure of cheap 286s, 386s, and 486s (with three expensive laser printers) to write the medical record software for the business. It was used by a dozen doctors, a nurse, and receptionist. You can do a lot with file-based database software (in this case, Clipper) and a mouse-less curses interface."
+
+What is it like today?:
+
+- "So much of programming today is busywork, or playing defense against a raging internet. You can do so much more, but the activation energy reqired to start writing fun collaborative software is so much higher you end up using some half-baked SaaS instead."
+
+- "If programming a LAN in the 1990s was the care-free tending to a garden in the countryside, then programming on the internet today is tending a planter box on Madison Avenue in midtown. Anyone can experience your work. You will also have your tilling judged by thousands of passersby, any of whom may ruin your work because the dog they’re walking hasn’t been city trained."
+
+Programming cannot be care-free anymore - especially if one wants to write software and give the service out to friends through the Internet, then a lot of effort has to be put in to make sure it does not get in the wrong hands. And this is where a VPN adds value. Again, in David's words:
+
+- "You can set up your environment so you can focus on being creative. Writing a web service for use by your friends should not be a form of combat, where you spend your days worrying about XSS attacks or buffer overflows. You should be focused on creating something new and wonderful in a place without bad people hounding you."
+
+Now that can be a good vision statement for a [company](https://tailscale.com/)! 
