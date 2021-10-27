@@ -1,3 +1,3 @@
-- **On identities**
+### On identities
 
 > David Crawshaw [explains nicely](https://tailscale.com/blog/asymmetry-identity/) how **identity** is defined/represented/used in the Internet. I especially liked the terminology used to depict the identity model - that there are **people**, who use the service, **brand**s which provide the required service. That **people** can communicate only with the **brand** or **people** can communicate with other **people** via the **brand** (which acts as a platform). How the two entities **people** and **brand** establish each others' identity and what are the different means to do that. Interesting read. It also highlights that even today **people** talking to **people** without the need for a **brand** is messy!
