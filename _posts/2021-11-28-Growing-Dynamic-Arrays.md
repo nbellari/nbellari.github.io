@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 ---
 ## Growing Dynamic Arrays
 
@@ -24,5 +24,3 @@ So, the average number of copy operations per insertion becomes:
 ![average.png]({{site.baseurl}}/_posts/average.png)
 
 This is amortization. Of course, an efficient implementation never copies elements one by one, instead it relies on **memcpy**, which based on platform features (such as **SIMD** etc.), can copy much more efficiently, so the cost of insertion is reduced further.
-
-
