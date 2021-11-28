@@ -8,18 +8,18 @@ Let's assume we have a policy of doubling the array size when the array is full.
 
 It can be noted that most insert operations are **O(1)**, only a few insert operations are not. An interesting questions is - given an array of size **n**, how many copy operations would have been performed, assuming that the array size starts from 1?
 
-![copies2.png](https://nbellari.github.io/_posts/copies2.png)
+![copies2.png]({{site.baseurl}}/images/copies2.png)
 
 For example, if n is 10, then number of copies are:
 
-![example1.png]({{site.baseurl}}/_posts/example1.png)
+![example1.png]({{site.baseurl}}/images/example1.png)
 
 In other words, the total number of copy operations done for an array of n elements are:
 
-![example1.1.png]({{site.baseurl}}/_posts/example1.1.png)
+![example1.1.png]({{site.baseurl}}/images/example1.1.png)
 
 So, the average number of copy operations per insertion becomes:
 
-![average.png]({{site.baseurl}}/_posts/average.png)
+![average.png]({{site.baseurl}}/images/average.png)
 
 This is amortization. Of course, an efficient implementation never copies elements one by one, instead it relies on **memcpy**, which based on platform features (such as **SIMD** etc.), can copy much more efficiently, so the cost of insertion is reduced further.
