@@ -1,7 +1,6 @@
 ---
 published: true
 ---
-## Growing Dynamic Arrays
 
 Normal arrays have constant access and insert time - **O(1)**. Dynamic arrays, however, grow in size to accommodate new elements. Access time is still constant, however, insert time varies depending on the element being inserted.
 
