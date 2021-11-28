@@ -8,7 +8,7 @@ Let's assume we have a policy of doubling the array size when the array is full.
 
 It can be noted that most insert operations are **O(1)**, only a few insert operations are not. An interesting questions is - given an array of size **n**, how many copy operations would have been performed, assuming that the array size starts from 1?
 
-![copies2.png]({{site.baseurl}}/_posts/copies2.png)
+![copies2.png](https://nbellari.github.io/_posts/copies2.png)
 
 For example, if n is 10, then number of copies are:
 
