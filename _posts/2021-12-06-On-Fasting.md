@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 ---
 I think that modern medicine looks at the human body in a reductionist fashion (break the body into smaller parts until you hit a cell, then reason about the body based on those fundamental elements), while ancient medicine looks at the body rather holistically (talk about energy centres and the role they play and how to nurture them etc.). To me, the latter is a rather interesting perspective on things.
 
