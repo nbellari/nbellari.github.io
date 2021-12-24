@@ -1,6 +1,6 @@
 ---
 layout: post
-Title: Running Python3 with Atom
+Title: "Running Python3 with Atom"
 date:  2021-12-23 13:30:56 +0530
 categories: editor programming
 ---
@@ -10,7 +10,7 @@ However, there was one issue. It was running python instead of python3, which is
 
 Open `$HOME/.atom/packages/script/lib/grammars/python.js` and look for the following lines:
 
-{% highlight javascript %}
+```javascript
 export const Python = {
   "Selection Based": {
     command: "python",
@@ -30,6 +30,6 @@ export const Python = {
     },
   },
 }
-{% endhighlight %}
+```
 
 Replace `python` with `python3` and you are done!

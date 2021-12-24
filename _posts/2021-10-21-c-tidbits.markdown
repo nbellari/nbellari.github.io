@@ -1,0 +1,23 @@
+---
+layout: post
+title: "Programming tidbits in C"
+date:  2021-12-24 18:57:51 +0530
+categories: programming
+---
+
+This post is constantly updated based on what I learn in C during my coding. Keep refreshing the page for updated content!
+
+* When using `getchar` function in C to read a character from standard input, one should take the value to an integer and not a character. Because EOF is -1 which is an integer
+  * `getline` is a handy function that can get a line of input from a given FILE stream (which means a file or standard input)
+* `strtok` can take different delimiter bytes in each invocation for the same string! Did not know this.
+  * two or more delimiter bytes at the start, at the end and in between the tokens are ignored.
+  * When we have multiple threads tokenizing strings, `strtok` does not work. For that `strtok_r` should be used instead which also takes another parameter to store the context
+* `waitpid` just doesn’t wait for the child to exit. It waits for the child’s state to change. A child can exit, can get paused/resumed by a signal. These can all be caught
+By default, it waits for child termination, until one of the options passed overrides the default behavior
+  * `wait` is a simpler version of `waitpid` where it waits until one of its children terminates
+  * The pid value passed on has a lot of semantics. If the pid is:
+    * greater than 0, then it is the pid of a child process
+    * -1, then it is any child process
+    * less than -1, then it is any child process that belongs to this process group (absolute value)
+    * 0, then it is any child process that belongs to the caller’s process group
+    * `WIFEXITED` and `WIFSIGNALED` are two macros that can help in knowing if the child process terminated normally or interrupted via a signal
