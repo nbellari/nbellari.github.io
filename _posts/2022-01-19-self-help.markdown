@@ -1,0 +1,15 @@
+---
+layout: post
+title: "On the Helplessness of Self-Help Books"
+date:  2022-01-19 12:09:01 +0530
+categories: ramblings
+---
+I have read a lot of self help books. A lot of self help blogs. None of them generally click even though they make a lot of sense while reading them. It's kind of frustrating often to see that the tips/suggestions given in the books/blogs often dont last long once we start to practise them. Everything fizzles out sooner.
+
+Part of the reason is not because they dont make sense - they actually do make a lot of sense, but mainly because self help books tend to impart wisdom. While knowledge can be easily imparted through different media (books/blogs/coaching classes etc.), the only medium to impart wisdom is through experience. There is [un]fortunately no shortcut. The only way to learn lessons in life is through experience - hard earned ones.
+
+Two things strike home today for me - that consistency is the key and mindful pursuit of daily things is essential. I am sure I would have come across these in many contexts, but they would just come and go but would not stick. However, this time, I feel like I really understood the meaning of the two - rather than just read about it and nod head in unison.
+
+For example, I have been struggling a lot to keep at programming. I keep learning the introduction to programming languages every now and then, but after sometime it feels like I have to start from scratch. The only way to keep good at it is to practice coding every day. Without that, the basic language constructs would not go to long term memory. 
+
+So, pave your own path to self improvement by realizing the value of doing things certain way. And yes, meditation helps a lot in becoming aware of things around us.
