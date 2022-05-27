@@ -1,0 +1,8 @@
+steps to publish a post in github:
+
+* go to nbellari.github.io/posts folder
+* create a markdown and edit it
+** When inside the vim, press <F2> in the insert mode to insert the header
+* Save the file name with appropriate date
+* Do a bundle exec jekyll serve and go to http://localhost:4000 to see the changes
+* Once happy with the post, publish with git add, git commit etc.
