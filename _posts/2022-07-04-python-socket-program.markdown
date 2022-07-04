@@ -82,6 +82,8 @@ else:
     print("should specify client or server")
 ```
 
+It should also be noted that the `socket` module provides a `create_server` function which does {create socket, bind to poart and listen} in a single step.
+
 A couple of things to note in this code are: the main socket calls are kept in the try/except block to catch any exceptions and the message that gets sent and received are a byte array and not a string - so one has to use `encode()` and `decode()` functions to convert between each other.
  
 It was a good refresher on the `ArgumentParser` as well. It is a very elegant way to handle arguments in python code.
