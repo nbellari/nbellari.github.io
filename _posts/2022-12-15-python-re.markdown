@@ -11,7 +11,7 @@ If a match is found, then `match.group()` will contain the matching portion of t
 
 A `groupdict()` would give a dictionary instead of a tuple, however, one has to specify the key name in the group matching expression and it gets messy ther, though it has a handy name to refer to.
 
-`findall()` finds all the matches - it returns a list of matches as strings. In case groupings are used, then each element in the list is a tuple and can be indexed. Instead of passing a string, one can even pass `f.read()` to pass file contents to match.
+`findall()` finds all the matches - it returns a list of matches as strings. In case groupings are used, then each element in the list is a tuple and can be indexed. Instead of passing a string, one can even pass `f.read()` to pass file contents to match. BTW, `findall()` just returns the captured groups, not the whole expression. `finditer()` returns an iterator for match objects, not strings themselves.
 
 Whatever is matched, can be substituted as well with `sub`. Whatever is matched can be replaced by default, however, only specific groups can be referred to/omitted to get a different result with `\1`, `\2` etc.
 
@@ -37,6 +37,9 @@ A note on how to match:
 * `^` within `[]` inverts the match
 * `(?: )` will not count as a group - in case if some match has to be ignored.
 * when `?` follows a `*` or `+`, it becomes non-greedy.
+* `{n,}` at the end of a matching sequence will match `n` or more occurrences of it.
+* any variable can be included in the regular expression by embedding `re.escape(var)` in between
+* `(?=)` and `(?!)` are positive and negative look-ahead matches - from what I understood, it just peeps, but does not move past it for matching..
 
 Some flags that can be passed are:
 
@@ -44,4 +47,4 @@ Some flags that can be passed are:
 * `re.DOTALL` - let the `.` match the newline also
 * `re.MULTILINE` - `^` and `$` will match each line instead of the real beginning and end
 
-
+https://www.debuggex.com/ - can be used to debug regular expressions in python
