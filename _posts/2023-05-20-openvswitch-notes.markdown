@@ -9,6 +9,6 @@ This blog post will be about all the random tidbits about openvswitch that I hav
 
 Not a big deal, but in one of the earlier blog posts, there is a note about openvswitch being a distributed switch - somethig to note:
 
-```Open vSwitch is not, on its own, a distributed switch.  The distribution of Open vSwitch is implemented through OpenFlow.  An OpenFlow controller, such as NOX, is required.```
+> Open vSwitch is not, on its own, a distributed switch.  The distribution of Open vSwitch is implemented through OpenFlow.  An OpenFlow controller, such as NOX, is required.
 
 
