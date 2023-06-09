@@ -1,0 +1,31 @@
+---
+layout: post
+title: VFP - A Virtual Switch Platform for Host SDN
+categories: networking programming
+date:  2023-06-09 17:32:05 +0530
+---
+
+I completed reading a paper [VFP: A Virtual Switch Platform for Host SDN in the Public Cloud](https://www.usenix.org/system/files/conference/nsdi17/nsdi17-firestone.pdf). Here are some notes.
+
+It is mostly similar to openvswitch, albeit with some subtle differences:
+
+* In OVS, there are ports, rules and tables. These are the basic constructs. In VFP, there are ports, rules, groups and layers. Layers can be mapped to tables while groups is a new construct in VFP.
+* Unlike OVS, VFP supports multiple controllers programming the VFP engine. Each controller can program their own layers. There is an implicit ordering among the layers which controllers agree upon and packets will traverse the layers in the given order.
+* To understand multiple controller model, we need to look at controllers as network applications. Each application is destined to program the network for a particular service. For example, there is a filtering application, NAT application, metering application and a simple routing application. Now all the intelligence can reside in a single controller or it can be sharded to different controllers. Azure chose the latter.
+* VFP does not choose to create tunnel interfaces. Our CTO was also of the same opinion. Instead of creating tunnel interfaces, rules have encap/decap actions that resulted in packet getting encapsulated and decapsulated. I can vouch for this first hand - in our current OVS usage, every tunnel destination (i.e. a remote TEP and a VNI) has a corresponding `ofport`. And `ofport` is only 16-bit - so the number of remote endpoints that can be addressed with `ofport` cannot be scaled well.
+* In VFP, tables (or layers) are per-port by default and I think the only configuration available. In OVS, I think it is flexible. It can be either global (one set of tables for all ports) or it can be per port. Are per-port tables scalable? Depends on the number of ports supported per host.
+* In OVS, rules are not grouped with in a table. There is priority only among rules within a table. And table traversal is driven by the matching rule's actions. In VFP, rules, groups and layers each have their own priority. 
+* OVS table traversal is driver by the `resubmit` action. In VFP, it looks like tables can be travelled in the forward order as well as in the reverse order. There are no `resubmit` actions in VFP and tables (or layers) are traversed according to priority. They also have the capability to traverse in the reverse order. One can, may be, simulate this with OVS also with `resubmit` actions, but it gets messier.
+* Like OVS, VFP also has slow path (the set of layers) and fast path a.k.a UFT (Unified Flow Table). Similar to OVS, it has a UFID. Similar to OVS, VFP has a generation id. However, unlike in OVS, the generation id is not per controller (there are many controllers here), but per port. So, when the policy on a port changes, the generation id is bumped up - which is a trigger for reconciliation of flows in UFT. So, apparently, there is no notion of a global config - it is always mapped to per port config by the controllers and are tracked with gen id.
+* In OVS, a major revalidation (triggered when generation id is bumped up) does not happen immediately, but after a timeout - say 1 or 2 secs. However, in VFP, reconciliation happens when the packet comes in for the port and in UFT it sees that the generation id does not match. They call this lazy reconciliation  - I call this just in time reconciliation.
+* VFP talks about `rules` and `flows`. Rules are clear, but the notion of flows is not very clear to me. Flows are talked about both in layers as well as UFT and is also talked about, in the paper, in the context of stateful sessions.
+* VFP also talks about stateful connections as being first class entities - though I could not clearly understand why or how. At least from the description of it, does not look different to me - in what I have seen other implementations. One difference is that, the bi-directional flows are apparently installed directly in UFT, unlike in OVS - a flow is never installed directly in fast path. It is first installed in slow path and then a handler will install in fast path.
+* In the earlier designs of VFT, apparently walking layers was a linear operation. Every layer was parsing the packet from scratch. After that, they have done how hardware does - collect actions in metadata and apply at the end and enhanced it with different data structures. There is another paper for it. Will get to it next time.
+* VFP has their own mechanism for implementing actions - but it is their way of doing it and I did not find anything specific worth mentioning.
+* VFP claims that upgrading VFP stack typically takes less than a second. However, UFT is lost and has to be rebuilt again.
+* Now comes my most favourite part of the paper - the ability of VFP to serialize and deserialize all the state that is present in VFP. This was also one of the core designs of our startup - CTO's brainchild. When you dont keep absolutely any state in a form that is not serializable - it makes the maintainability of software so easy. Serializing and de-serializing gives many advantages - a) save the state, update the software, restore the state. b) save the state, migrate a VM and restore the state. c) save the state, take it offline for local debugging. In short, this one piece of infra (and the design decisions associated with it) will enable a lot of features and make life much easier.
+* A note about offloads - microflows are easier to support in hardware - it only needs DRAM (exact match), where as megaflows need TCAM which is very expensive to support.
+* The paper also makes a subtle point about the granularity of failure domains. From a service point of a view, VM downtime is not such a big deal, but when looked at from IaaS point of view - where customer is managing VMs - a single VM downtime is a big deal.
+* VFP claims 500k connections per port.
+
+In all, VFP has made some good choices when compared to OVS for better serviceability and scaling.
