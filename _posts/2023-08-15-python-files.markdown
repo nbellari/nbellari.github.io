@@ -27,5 +27,5 @@ I have been looking at working with files in a platform independent way for pyth
 * `os.path.islink()` to check if a file is a link
 * `os.path.ismount()` to check if the given path is a mount point
 * `os.path.exists()` to check if the path exists
-* `os.walk(path, callback, arg)` calls the callback which is of signature `callback(arg, dirname, names)`. Basically it starts walking the `path` and gives each directory along with its contents. 
+* `os.walk(path)` returns a tuple of `(root, dirs, files)` for the current directory. `os.path.walk()` is not available in recent versions for python3
 * `os.mkdir()` creates a directory
