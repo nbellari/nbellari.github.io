@@ -7,6 +7,7 @@ date:  2023-08-19 16:47:05 +0530
 
 Some Python notes:
 
+* One of the most important and frequently occuring computational pattern - `enumerate -> filter -> map -> accumulate`
 * Identity is a stronger condition than equality. That is, `is` is stronger than `==`
 * Two empty lists `[]` and `[]` are equal, but not identical. While, two `None`s are equal and identical.
 * When assignment binds a variable to another variable pointing to a mutable type, then both variables refer to the same instance of the mutable type.
