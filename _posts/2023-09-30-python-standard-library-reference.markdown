@@ -5,7 +5,6 @@ categories: programming
 date:  2023-09-30 20:06:05 +0530
 ---
 
-# Python Standard Library
 
 ## File Handling
 
@@ -38,4 +37,18 @@ date:  2023-09-30 20:06:05 +0530
 * `shutil.copyfile(file1, file2)` - copies file1 to file2. `file2` cannot be a directory
 * `shutil.copy()` - copies like unix cp, where if destination is a directory, then it is copied into it
 * `shutil.copy2()` - is like `copy()`, but preserves atime and mtime
-
+* file open modes:
+| mode | description | file pointer |
+|------|-------------|--------------|
+| `r` | opens file in read only mode | start of the file |
+| `r+` | opens fie in read and write mode | start of the file |
+| `w` | opens file in write mode (truncates existing one) | start of the file |
+| `w+` | opens file in read and write mode (no truncate) | start of the file |
+| `a` | opens file for writing | end of the file |
+| `a+` | opens file in append and read mode | end of the file |
+* `f.read()` - reads the entire file as one string and returns it
+* `f.readline()` - reads the next line from the file
+* `f.readlines()` - returns a list of lines from the file
+* `f.write()` - writes a string to the file
+* `f.writelines()` - writes a list of lines to the file
+* `f.append()` - appends to the file (that is, no need to seek to the end of the file, file has to be opened in either `a` or `a+` mode)
