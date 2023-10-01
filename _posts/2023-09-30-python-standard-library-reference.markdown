@@ -38,6 +38,7 @@ date:  2023-09-30 20:06:05 +0530
 * `shutil.copy()` - copies like unix cp, where if destination is a directory, then it is copied into it
 * `shutil.copy2()` - is like `copy()`, but preserves atime and mtime
 * file open modes:
+
 | mode | description | file pointer |
 |------|-------------|--------------|
 | `r` | opens file in read only mode | start of the file |
@@ -46,6 +47,7 @@ date:  2023-09-30 20:06:05 +0530
 | `w+` | opens file in read and write mode (no truncate) | start of the file |
 | `a` | opens file for writing | end of the file |
 | `a+` | opens file in append and read mode | end of the file |
+
 * `f.read()` - reads the entire file as one string and returns it
 * `f.readline()` - reads the next line from the file
 * `f.readlines()` - returns a list of lines from the file
