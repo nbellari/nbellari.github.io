@@ -22,3 +22,9 @@ Some Python notes:
 * `Class.mro()` will give the method resolution order of methods for a given class
 * `str` is supposed to give human readable version of the object, while `repr` is supposed to give machine readable version. That is, `eval(repr(obj)) == obj`. `repr` can be usd to serialize and de-serialize an object, provided we implement it carefully.
 * `1j` is a complex numeral. Only `j` is allowed
+* A long string over multiple lines can be had something like this, without the hassle of newlines being inserted (as with a multiline string)
+```python
+s = ("this is a very long"
+     " string, which spans"
+     " multiple lines")
+```
