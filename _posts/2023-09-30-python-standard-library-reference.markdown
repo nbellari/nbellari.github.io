@@ -128,3 +128,31 @@ Different action arguments:
 | `store_true` and `store_false` | stores boolean values |
 | version | specifies the version and exits. Must be passed through `version=x.y.z` |
 
+
+## String Manipulation
+
+### String Module
+
+* `string.capwords(s)` - capitalize words in a sentence
+* Different ways of string manipulation
+
+| Method | Description |
+| `string.Template` | Instantiate a `string.Template` with a string containing variables mentioned as `$var` or `${var}`. Then have a dictionary of variables and their values and pass them to the template with `t.substitute(dict)`. `safe_substitute()` does not raise any exceptions incase some keys are missing |
+| interpolation with `%` | string has `%(var)<num>{s|d|f}` and it is interpolated with a dictionary which contains `var` as one if its keys |
+| with `format` method | string has `{var}` in it and `format` is called with keyword arguments for the form `var=val` to replace it in the string |
+
+* template based substitution is not as rich as interpolation or format method when it comes to formatting output.
+* `format` method is very rich in specifying the format
+* Ways of specifying the variables
+
+| `{foo} has {bar}` | the method takes keyword based arguments where the keywords are `foo` and `bar` - order of arguments is not important |
+| `{0} has {1}` | the method takes nameless arguments, first one being `0`. Order of arguments is important |
+| `{} has {}` | same as above |
+
+* ways of specifying formatting types
+
+| `:<` | left aligned |
+| `:>` | right aligned |
+| `:^` | center aligned |
+| `:<num>{b|f|o|x|X}` | print the number in binary, float, octal, lower hex, upper hex respectively |
+

@@ -29,5 +29,6 @@ s = ("this is a very long"
      " multiple lines")
 ```
 * one difference between `%(specifier)s' and f-strings is that f-strings evaluate immediately while the former does so lazily, so it can be used in arguments as well
-* one can have a dictionary and pass it as `**dict` to a function to expand it as keyword arguments. 
+* one can have a dictionary and pass it as `<star><star>dict` to a function to expand it as keyword arguments. 
+
 
