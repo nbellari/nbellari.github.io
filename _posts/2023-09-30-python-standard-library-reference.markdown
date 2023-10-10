@@ -155,4 +155,5 @@ Different action arguments:
 | `:>` | right aligned |
 | `:^` | center aligned |
 | `:<num>{b|f|o|x|X}` | print the number in binary, float, octal, lower hex, upper hex respectively |
-
+|`{!r}` | user `repr` method to display |
+| `{!s}` | use `str` method to display |
