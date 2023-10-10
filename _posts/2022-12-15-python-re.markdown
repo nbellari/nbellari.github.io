@@ -85,4 +85,4 @@ Some flags that can be passed are:
 * `re.DOTALL` - let the `.` match the newline also
 * `re.MULTILINE` - `^` and `$` will match each line instead of the real beginning and end
 
-(debuggex)[https://www.debuggex.com/] - can be used to debug regular expressions in python
+[debuggex](https://www.debuggex.com/) - can be used to debug regular expressions in python
