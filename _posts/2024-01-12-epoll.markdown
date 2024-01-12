@@ -1,0 +1,22 @@
+---
+layout: post
+title: A Marvel Called epoll
+categories: programming
+date:  2024-01-12 17:54:05 +0530
+---
+
+We know the unix philosophy that everything is a file (well, atleast a file descriptor, if not a file). Network sockets, unix sockets, named pipes, unnamed pipes etc. But, today, this [article about epoll](https://darkcoding.net/software/linux-what-can-you-epoll/) made me realize that `(l)inux` indeed allows quite a few things to be converted into file descriptors so that we can keep all our eggs(`fd`s) in one basket (`epoll`) and watch the basket. 
+
+| thing | how to make fd |
+| timer | `timerfd_create` |
+| signal | `signalfd` |
+| fs events | `inotify_init` |
+| child processes | `pidfd_open` and `waitid` once it exits |
+| epoll fd | to create hierarchy of listeners |
+
+And many more things! One of the interesting things to note here is that signals are generally asynchronous - that is when signal occurs, the corresponding signal handler executes in whatever is the current context. This is a bit of a concern when it comes to programming. When you convert signal to a fd, that worry goes away!
+
+That said, there are some things that cannot be added to epoll. Those things can be moved to a different thread. There are still some mechanisms that are available with which events can be communicated and then added to epoll.
+
+And ironic as it may sound, epoll takes most file like descriptors, except real files!! If a file exists, then we can read it for sure. But, we want to read it at a specific offset, so just adding fd to epoll does not make sense. So it is. Apparently, `io_uring` and `libaio` came into picture to be able to handle exactly this. Come back to read contents only after the contents are really available! That is, without a context switch into kernel to fetch the page from the disk. They can be integrated with epoll.
+
