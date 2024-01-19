@@ -157,3 +157,20 @@ Different action arguments:
 | `:<num>{b|f|o|x|X}` | print the number in binary, float, octal, lower hex, upper hex respectively |
 |`{!r}` | user `repr` method to display |
 | `{!s}` | use `str` method to display |
+
+## time
+
+`epoch` is `01:00:00` hrs and not `00:00:00` hrs
+
+| `time()` | returns seconds since epoch, but is a floating point number and has sub second resolution | 
+| `gmtime()`, `localtime()` | returns `time.struct_time` object with all the details either with seconds or with current time |
+| `asctime()` | takes in an optional `struct_time` (otherwise takes from `localtime()`) and prints in string format | 
+| `ctime(secs)` | convert a seconds since epoch to string format |
+| `mktime()` | convert a `struct_time` to seconds till epoch |
+| `monotonic()`, `monotonic_ns()` | non-decrementing fractional seconds which is unaffected by system clock updates. Only difference of two calls makes sense - no reference point |
+| `perf_counter()`, `perf_counter_ns()` | apparently same as above |
+| `process_time()`, `process_time_ns()` | returns sum of system and user CPU time. `ns` version is better - no reference point |
+| `sleep()` | sleep for fractional seconds |
+| `strftime()` | take a bunch of format specifiers and `struct_time` and print it in english |
+| `strptime()` | parse a string according to the specified format and return a `struct_time` |
+| `thread_time()`, `thread_time_ns()` | returns sum of system and user CPU time for the current thread - no reference point |
