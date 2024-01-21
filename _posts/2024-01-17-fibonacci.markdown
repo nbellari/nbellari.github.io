@@ -52,7 +52,7 @@ def time_it(fn):
         val = f(n)
         end = time.time_ns()
         diff = end - start
-        print(f"{f.__name__}({n}) ----------- {get_coarse_time(diff)}")
+        print(f"{get_coarse_time(diff)}")
     return fn_wrapper
 
 @time_it
@@ -62,49 +62,74 @@ def run_fib(f, n):
 
 See the time taken for the iterative version and recursive version for 20 runs:
 
-```
-bellari@nagpi:~/projects/sicp$ python3 fib.py 20
-fib_iter(1) ----------- 3.834 usec     
-fib_iter(2) ----------- 3.815 usec      
-fib_iter(3) ----------- 2.519 usec      
-fib_iter(4) ----------- 2.315 usec       
-fib_iter(5) ----------- 2.352 usec        
-fib_iter(6) ----------- 2.389 usec       
-fib_iter(7) ----------- 2.537 usec        
-fib_iter(8) ----------- 2.685 usec        
-fib_iter(9) ----------- 2.723 usec       
-fib_iter(10) ----------- 2.759 usec       
-fib_iter(11) ----------- 5.26 usec        
-fib_iter(12) ----------- 3.722 usec        
-fib_iter(13) ----------- 17.852 usec       
-fib_iter(14) ----------- 3.574 usec        
-fib_iter(15) ----------- 7.241 usec
-fib_iter(16) ----------- 4.0 usec
-fib_iter(17) ----------- 4.148 usec
-fib_iter(18) ----------- 4.111 usec
-fib_iter(19) ----------- 4.241 usec
-fib_iter(20) ----------- 205.368 usec
+### Iterative Version
 
-fib_recursive(1) ----------- 1.574 usec
-fib_recursive(2) ----------- 1.093 usec
-fib_recursive(3) ----------- 2.889 usec
-fib_recursive(4) ----------- 2.962 usec
-fib_recursive(5) ----------- 4.24 usec
-fib_recursive(6) ----------- 7.851 usec
-fib_recursive(7) ----------- 9.222 usec
-fib_recursive(8) ----------- 13.648 usec
-fib_recursive(9) ----------- 21.389 usec
-fib_recursive(10) ----------- 33.796 usec
-fib_recursive(11) ----------- 191.757 usec
-fib_recursive(12) ----------- 88.554 usec
-fib_recursive(13) ----------- 283.107 usec
-fib_recursive(14) ----------- 286.903 usec
-fib_recursive(15) ----------- 430.29 usec
-fib_recursive(16) ----------- 653.269 usec
-fib_recursive(17) ----------- 973.209 usec
-fib_recursive(18) ----------- 1.508776 msec
-fib_recursive(19) ----------- 2.376171 msec
-fib_recursive(20) ----------- 3.813559 msec
+| n | time |
+|1| 3.834 usec |
+|2| 3.815 usec  |
+|3| 2.519 usec  |
+|4| 2.315 usec   |
+|5| 2.352 usec    |
+|6| 2.389 usec   |
+|7| 2.537 usec    |
+|8| 2.685 usec    |
+|9| 2.723 usec   |
+|10| 2.759 usec   |
+|11| 5.26 usec    |
+|12| 3.722 usec    |
+|13| 17.852 usec   |
+|14| 3.574 usec    |
+|15| 7.241 usec |
+|16| 4.0 usec |
+|17| 4.148 usec |
+|18| 4.111 usec |
+|19| 4.241 usec |
+|20| 205.368 usec |
+
+### Recursive Version
+
+| n | time |
+|1| 1.574 usec |
+|2| 1.093 usec |
+|3| 2.889 usec |
+|4| 2.962 usec |
+|5| 4.24 usec |
+|6| 7.851 usec |
+|7| 9.222 usec |
+|8| 13.648 usec |
+|9| 21.389 usec |
+|10| 33.796 usec |
+|11| 191.757 usec |
+|12| 88.554 usec |
+|13| 283.107 usec |
+|14| 286.903 usec |
+|15| 430.29 usec |
+|16| 653.269 usec |
+|17| 973.209 usec |
+|18| 1.508776 msec |
+|19| 2.376171 msec |
+|20| 3.813559 msec |
+
+As you can see, the recursive version is an order of magnitude larger than the iterative version as n increases (we are just at 20)! That is because the recursive version does lot of duplicate work. `fib(5)` calls `fib(4)` and `fib(3)`, but `fib(4)` also calls `fib(3)` - this is the duplicate work that gets done.
+
+Memoization aims to cache already computed results so they dont need to be computed again. Here is a memoized version:
+
+```python
+def memoized(fn):
+    fib_cache = {}
+    def fib(n):
+        if n not in fib_cache:
+            fib_cache[n] = fn(n)
+        return fib_cache[n]
+    return fib
+
+fib_recursive = memoized(fib_recursive)
 ```
 
-As you can see, the recursive version is an order of magnitude larger than the iterative version as n increases! That is because the recursive version does lot of duplicate work. `fib(5)` calls `fib(4)` and `fib(3)`, but `fib(4)` also calls `fib(3)` - this is the duplicate work that gets done.
+The last line above makes `fib_recursive` a memoized version. Whenever it is called, it always returns the cached answer if it exists. Only if it does not exist, will it go for the actual version.
+
+The following chart shows how much memoizing the results will improve the performance. Iterative and memoized versions are practically indistinguishable here and recursive version grows exponentially!!
+
+![fib-chart.png]({{site.baseurl}}/assets/images/fib/fib-chart.png)
+
+How better is iterative better over memoized version? or Vice versa? To understand that we need to run the experiment without recursive version - as it takes the y-axis off the charts (literally!) and for larger `n`s. Here is the resulting chart:
