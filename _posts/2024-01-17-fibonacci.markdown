@@ -134,6 +134,6 @@ The following chart shows how much memoizing the results will improve the perfor
 
 How better is iterative better over memoized version? or Vice versa? To understand that we need to run the experiment without recursive version - as it takes the y-axis off the charts (literally!) and for larger `n`s. Here is the resulting chart:
 
-![i-vs-m.png]({{site.baseurl}}/assets/images/fib/fib-chart.png)
+![i-vs-m.png]({{site.baseurl}}/assets/images/fib/i-vs-m.png)
 
 I am still trying to understand the reason for the spikes, but looks like the memoized version looks to perform better over a period of time!
