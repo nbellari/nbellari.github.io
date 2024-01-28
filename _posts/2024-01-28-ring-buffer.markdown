@@ -40,7 +40,7 @@ iterate()
 
     idx = (next_index + 1) % MAX_ENTRIES;
     if (is_zero(ring_buffer[idx])) {
-         * ring buffer is somewhere in the middle
+         /* ring buffer is somewhere in the middle
          */
         start = 0;
         count = next_index - start;
