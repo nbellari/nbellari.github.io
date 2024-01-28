@@ -51,6 +51,11 @@ iterate()
         start = (next_index + 1) % MAX_ENTRIES;
         count = MAX_ENTRIES;
     }
+
+    for (i=0, idx=start; i<count; i++) {
+        // Access the element
+        // ring_buffer[idx]
+    }
 }
 ```
 
