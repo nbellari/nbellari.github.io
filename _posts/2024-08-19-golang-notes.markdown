@@ -7,6 +7,8 @@ date:  2024-08-19 12:17:05 +0530
 
 Here are some golang notes for my reference, taken from the book "The Go Programming Language".
 
+# Chapter 2: Program Structure
+
 * In the increasing order of abstraction: values (simple and aggregate types), keywords, variables, expressions, statements, control-flow statements, functions, files, packages.
 * There is a difference between `keywords` and `predeclared names` - the former cannot be used in declarations, while the latter can be.
 * Any name outside the scope of a function (including the function name itself) is visible across all the files with in a package. If the name starts with an uppercase letter, then it is by default exported to be accessed by all the files of the package as well as other pacakges.
@@ -39,4 +41,7 @@ Here are some golang notes for my reference, taken from the book "The Go Program
 * The main advantage of user defined types is that even though the underlying type is the same, they can never be assigned or compared with each other without explicit conversion
 * Named types can have its own methods - which is another advantage over primitive types
 * Only one file in each package should have a doc comment
+* There can be many `init` functions in a file and all of them will be called before a program executes - convenient to initialize complex tables etc.
+* Apparently, there are explicit blocks that define scope and there are also implicit blocks. For example, `for i, _ := range arr` defines an implicit scope. The scope of the variable `i` for example, in this case is the condition, post statement and the body of the for loop. One interesting thing to note here is that `i` in the for statement can refer to another `i` in the encompassing scope when it is getting defined.
+* One has to be careful with short variable declarations as it can inadvertently override the global ones and they never get updated! 
 
