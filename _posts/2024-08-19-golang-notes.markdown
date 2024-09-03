@@ -45,3 +45,56 @@ Here are some golang notes for my reference, taken from the book "The Go Program
 * Apparently, there are explicit blocks that define scope and there are also implicit blocks. For example, `for i, _ := range arr` defines an implicit scope. The scope of the variable `i` for example, in this case is the condition, post statement and the body of the for loop. One interesting thing to note here is that `i` in the for statement can refer to another `i` in the encompassing scope when it is getting defined.
 * One has to be careful with short variable declarations as it can inadvertently override the global ones and they never get updated! 
 
+# Chapter 3: Basic Types
+
+* No implicit type conversions are allowed even for the basic integer types
+* Integers, floating point numbers and strings are ordered by comparison operators.
+* No other types are ordered
+* Right shift operator fills the vacated bits not with zero, but with the value of the sign bit (MSB)
+* `len(aggregate)` - always returns a signed integer so that statements like `i := len(arr); i >=0; i--` terminate correctly. 
+* Signed integers are beneficial in places even though unsigned integers may seem more intuitive
+* format specifiers are called `verbs`
+* Generally, the number of parameters (after the format string) is same as the number of verbs in the format string, but we can specify adverbs to work around that.
+* Some adverbs: `[1]` - after `%` tells Printf to use the first parameter only. `#` - after `%` tells Printf to print prefix (`0` or `0x` or `0X`) appropriately - adverbs precede verbs. The decorator adverb precedes the arg adverb.
+* `%q` - prints with quotes
+* `float32` provides 6 digits of precision, `float64` provides 15
+* Floating numbers can be written as `.80` or `12.`
+* Three verbs for floating point - `%g`: chooses the most compact form. `%e` (with exponent) or `%f` (without exponent) is used for tabulating - with column alignment - we can use standard `%8.3f` etc.
+* Comparison with `NaN` always yields `false`
+* Be it import, var, const etc. They all can be defined in a group like `import (...)`, `const (...)`
+* Complex number is a native type - multiplication/addition/subtraction are natively calculated
+* `complex(real, img)` is used to construct a complex number. `real(x)`, `imag(x)` - return real and imaginary components.
+* Complex numbers can be initialized like mathematically also: `x := 2 - 3i`
+* UTF-8 encoded sequence of code points are called as runes
+* `ith` byte is not same as `ith` character in the string. `len` returns the number of bytes.
+* For strings, when we say `t := s` and do `s += 'abc'`, then `s` will be a new string, `t` will be pointing to old `s`
+* Because strings are immutable, substringing is fast because they share the same memory beneath
+* Go source files are always encoded in UTF-8.
+* A raw string is written in backticks. Except carriage returns, which are deleted, nothing else is interpreted
+* Some applications of raw strings: regular expressions, HTML, JSON, multi-line messages etc.
+* A `rune` is a unicode code point (i.e. a number)
+* Unicode has about 120000 code points
+* UTF-32 is a fixed length encoding of unicode code points. UTF-8 is a variable length encoding of unicode code points
+
+| UTF-8 encoding | What does it mean | rune bytes |
+| 0xxxxxxx | ASCII | 1 |
+| 110xxxxx 10xxxxxx | 128 - 2047 (<128 are not used) | 2 |
+| 1110xxxx 10xxxxxx 10xxxxxx | 2048 - 65535 (<2048 are not used) | 3 |
+| 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx | 65535 - 0x10ffff | 4 |
+
+* Runes are self synchronizing - we can always find the beginning of a character by backing up no more than 3 bytes (worst case)
+* Runes are prefix coded, so we can get to characters without any lookahead
+* Apparently string literals and rune literals are different. String literals can be encoded in `\x, `\u` or `\U`. However, rune literals allow `\x` only if it is a single byte unicode, `\u` only if it is a 2-byte unicode and `\U` if it isa 4-byte unicode
+* `utf8.RuneCountInString` returns the number of runes in a string. `utf8.DecodeRuneInString` returns the rune and its size
+* To step through characters in a string, one does with the help of the `utf8.DecodeRuneInString` and jumping `size` bytes in the string
+* `range` does the above job implicitly. If we say `i, r := range <str>`, then it will increment to point to the next character (not next byte)
+* Number of runes in a string can be easily done as `for _,_ := range <s> { n++ }`
+* Because of this, it is always recommended to always loop over a string with `range`
+* Each time `range` or `utf8.DecodeRuneInString` encounters an invalid input in the sequence, it returns the `\uFFFD`which is a question mark
+* When we convert integer as rune, the integer is treated as a rune value.
+* Because strings are immutable, building them incrementally is costly
+* Four main packages for strings: `bytes`, `strings`, `strconv` and `unicode`
+* `basename` removes both directory components and suffix
+* `path` package works on any platform, for URl paths. `path/filepath` should be used for filenames as it is platform specific
+* A string is immutable, but a byte array is not.
+* 
