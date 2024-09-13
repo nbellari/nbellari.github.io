@@ -97,4 +97,5 @@ Here are some golang notes for my reference, taken from the book "The Go Program
 * `basename` removes both directory components and suffix
 * `path` package works on any platform, for URl paths. `path/filepath` should be used for filenames as it is platform specific
 * A string is immutable, but a byte array is not.
-* 
+* When more than one constant is declared in a group, then the type and value of other constants can be ommitted, the first expression value is propagated to the rest.
+* `iota` is a constant generator - 
