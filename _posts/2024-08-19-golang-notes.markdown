@@ -98,4 +98,40 @@ Here are some golang notes for my reference, taken from the book "The Go Program
 * `path` package works on any platform, for URl paths. `path/filepath` should be used for filenames as it is platform specific
 * A string is immutable, but a byte array is not.
 * When more than one constant is declared in a group, then the type and value of other constants can be ommitted, the first expression value is propagated to the rest.
-* `iota` is a constant generator - 
+* `iota` is a constant generator - it can be used in complex constant expressions and the value will be correspondingly computed
+* The major advantage with untyped constants is that - they can be assigned to reasonable types without requiring explicit type conversions. Also, compiler can do very high precision arithmetic with them - as they are done at compile time.
+* There can only be untyped consts, not untyped variables
+* An untyped integer is converted to `int`, while untyped float and complex are converted into explicitly sized `float64` and `complex128`
+
+# Chapter 4: Composite Types
+
+* An array initializer looks like `[3]int{1,2,3}` or `[...]int{3,4,5,6}`. That is, size can be specified or auto-calculated
+* Array type is base type and its size together - and a slice is a type with no indication of size
+* Array can be initialized as a sequence of values, as well as `index:value` pairs (which can be out of order as well as partial)
+* Slice is identified by 3 things - pointer, length, capacity (what is the use of capacity?)
+* In `s[i:j]` - s can be an array, a pointer to an array or a slice itself
+* The third attribute of a slice (capacity) is necessary because a slice can be extended beyond its length (but within the capacity) without any issues
+* In python, `[:]` - creates a new sequence with the same elements, but here, it creates an alias.
+* A new slice can be initialized just like an array, without the size
+* When we create a slice variable - it implicitly creates an array variable and points the slice to it with len == cap
+* slices are not comparable. go stdlib provides only `bytes.Equal` - other type of slices must be manually compared
+* The range function can return either index only (if one variable is given) or both index and the value.
+* There are two kinds of empty slices - a nil empty slices such as `var s []int`, `nil`, `[]int(nil)` and a non-nil empty slice `[]int{}`
+* Testing for an empty slice shoud be as `len(s) == 0` and not `s == nil` because of the above case
+* `make([]T, len, cap)` - will make a slice. It will create an array of `cap` size and make the slice point until `len`. The underlying array is invisible, it is only accessible through the slice
+* `copy(dst, src)` - inbuilt function to copy one slice to another. It copies the minimum of two.
+* The `append` function always returns a slice - it can be the same slice or a different one
+* `a = append(a, x)` is the standard - because append may change the underlying array. The elements of a slice are indirect, but slice metadata is not. It has to be updated with an assignment
+* `append` function can take more than one element or a slice too
+* in a map, keys have to be of the same type and values have to be of the same type
+* Any non-existent key will return a zero-equivalent value, it wont panic like in python
+* `delete(map, key)` - will delete the key from the map 
+* Address of a map element cannot be taken
+* A slice can be extended only with `append` function
+* If we know the size of a slice beforehand, then it is better to create a slice with `make` and mentioning the `cap` so that `append` is cheap
+* lookup, delete, len, range etc. all can be called on a `nil` map
+* Subscripting a key can always be accompanied by another variable that says whether the key was present or not. This is much simpler in go than in python
+* A coding style for key checking would be `if val, ok := m[key]; !ok { .. }`
+* Comparison of two maps has be manual (not through `==`). Compare the number of elements, then for each element in map1, check in map2 etc.
+* `map[string]map[string]bool` - is a map whose key is a string and value is a map whose key is a string and value is a bool
+* Keep the zero value of a type to good use as much as possible (for example in map values)
